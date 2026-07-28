@@ -1,0 +1,54 @@
+<!-- 确认下单页 -->
+<view class="page">
+
+  <!-- 收货信息 -->
+  <view class="section">
+    <view class="section-title">收货信息</view>
+    <view class="form-item">
+      <text class="label">联系电话</text>
+      <input class="input" placeholder="请输入手机号" value="{{contactPhone}}" bindinput="onPhoneInput" type="number" maxlength="11" />
+    </view>
+    <view class="form-item">
+      <text class="label">配送地址</text>
+      <input class="input" placeholder="请输入地址或点右侧定位" value="{{address}}" bindinput="onAddressInput" />
+      <view class="locate-btn" bindtap="chooseLocation">📍</view>
+    </view>
+    <view class="form-item">
+      <text class="label">备注</text>
+      <input class="input" placeholder="如：不要辣、放门口（选填）" value="{{remark}}" bindinput="onRemarkInput" />
+    </view>
+  </view>
+
+  <!-- 订单商品 -->
+  <view class="section">
+    <view class="section-title">商品明细</view>
+    <view wx:for="{{cart}}" wx:key="id" class="order-item">
+      <image class="oi-image" src="{{item.image || '/images/default-food.png'}}" mode="aspectFill" />
+      <view class="oi-info">
+        <text class="oi-name">{{item.name}}</text>
+      </view>
+      <view class="oi-right">
+        <text class="oi-price">¥{{item.price}}</text>
+        <text class="oi-qty">×{{item.quantity}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 金额统计 -->
+  <view class="section">
+    <view class="amount-row">
+      <text>商品合计</text>
+      <text class="amount-value">¥{{totalPrice}}</text>
+    </view>
+  </view>
+
+  <!-- 提交按钮 -->
+  <view class="submit-bar">
+    <view class="total-line">
+      <text>实付：</text>
+      <text class="final-price">¥{{totalPrice}}</text>
+    </view>
+    <button class="submit-btn" bindtap="submitOrder" loading="{{submitting}}">提交订单</button>
+  </view>
+
+</view>

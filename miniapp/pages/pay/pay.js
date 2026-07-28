@@ -1,0 +1,107 @@
+/**
+ * 支付确认页（模拟支付）
+ * 实际支付对接时，替换 handlePay 中的逻辑即可
+ */
+
+const { order, auth } = require('../../utils/api');
+
+Page({
+  data: {
+    cart: [],
+    totalPrice: '0.00',
+    contactPhone: '',
+    address: '',
+    lat: null,
+    lng: null,
+    paying: false,
+  },
+
+  async onLoad(options) {
+    // 确保已登录
+    const token = wx.getStorageSync('token');
+    if (!token) {
+      try {
+        const { DEV_MODE } = require('../../utils/config').CONFIG;
+        if (!DEV_MODE) { wx.showToast({ title: '请先登录', icon: 'none' }); setTimeout(() => wx.navigateBack(), 1000); return; }
+        const result = await auth.login('13800000002', '123456');
+        wx.setStorageSync('token', result.data.token);
+        wx.setStorageSync('userInfo', result.data.user);
+        getApp().globalData.token = result.data.token;
+      } catch (err) {
+        wx.showToast({ title: '登录失败，请重试', icon: 'none' });
+        setTimeout(() => wx.navigateBack(), 1000);
+        return;
+      }
+    }
+
+    // 从上一页传来的参数
+    const cart = wx.getStorageSync('cart') || [];
+    if (cart.length === 0) {
+      wx.showToast({ title: '购物车为空', icon: 'none' });
+      setTimeout(() => wx.navigateBack(), 1000);
+      return;
+    }
+
+    // 预计算每项小计（WXML不支持.toFixed，必须JS里算好）
+    const cartWithSubtotal = cart.map(item => ({
+      ...item,
+      subtotal: (parseFloat(item.price) * item.quantity).toFixed(2),
+    }));
+
+    const totalPrice = cartWithSubtotal
+      .reduce((sum, item) => sum + parseFloat(item.subtotal), 0)
+      .toFixed(2);
+
+    this.setData({
+      cart: cartWithSubtotal,
+      totalPrice,
+      contactPhone: decodeURIComponent(options.phone || ''),
+      address: decodeURIComponent(options.address || ''),
+      remark: decodeURIComponent(options.remark || ''),
+      lat: options.lat ? parseFloat(options.lat) : null,
+      lng: options.lng ? parseFloat(options.lng) : null,
+    });
+  },
+
+  // 确认支付（模拟）
+  async handlePay() {
+    this.setData({ paying: true });
+
+    try {
+      // 模拟支付延迟（让用户感觉在"支付中"）
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // 创建订单
+      const items = this.data.cart.map(item => ({
+        product_id: item.id,
+        quantity: item.quantity,
+      }));
+
+      const res = await order.create({
+        items,
+        delivery_address: this.data.address,
+        contact_phone: this.data.contactPhone,
+        remark: this.data.remark,
+        lat: this.data.lat,
+        lng: this.data.lng,
+      });
+
+      // 清空购物车
+      wx.removeStorageSync('cart');
+      getApp().updateCartBadge();
+
+      wx.showToast({ title: '支付成功！', icon: 'success' });
+
+      // 跳转订单详情
+      setTimeout(() => {
+        wx.redirectTo({
+          url: '/pages/order-detail/order-detail?id=' + res.data.id,
+        });
+      }, 800);
+    } catch (err) {
+      wx.showToast({ title: err.message || '支付失败', icon: 'none' });
+    } finally {
+      this.setData({ paying: false });
+    }
+  },
+});

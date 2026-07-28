@@ -1,0 +1,9 @@
+/* 外卖商家后台 - 全局样式 */
+body {
+  margin: 0;
+  background: #f5f5f5;
+}
+
+#root {
+  min-height: 100vh;
+}

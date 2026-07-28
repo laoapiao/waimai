@@ -1,0 +1,65 @@
+<!-- 订单详情（含骑手地图追踪） -->
+<view class="page">
+
+  <!-- 地图（配送中显示骑手位置） -->
+  <view class="map-container" wx:if="{{showMap}}">
+    <map
+      id="riderMap"
+      class="map"
+      latitude="{{riderLat}}"
+      longitude="{{riderLng}}"
+      markers="{{markers}}"
+      scale="{{15}}"
+      show-location="{{true}}"
+    />
+    <view class="map-tip">
+      <text>🛵 骑手 {{riderName}} 正在配送中</text>
+      <text class="map-update">📍 {{riderLat ? '实时定位中' : '等待位置...'}}</text>
+    </view>
+  </view>
+
+  <!-- 状态 -->
+  <view class="section">
+    <view class="status-bar">
+      <text class="status-badge {{order.status}}">{{statusText[order.status]}}</text>
+    </view>
+  </view>
+
+  <!-- 收货信息 -->
+  <view class="section">
+    <view class="section-title">📋 收货信息</view>
+    <view class="info-row"><text class="info-label">顾客</text><text>{{order.customer.nickname || ''}}</text></view>
+    <view class="info-row"><text class="info-label">电话</text><text>{{order.contact_phone}}</text></view>
+    <view class="info-row"><text class="info-label">地址</text><text>{{order.delivery_address}}</text></view>
+    <view wx:if="{{order.remark}}" class="info-row"><text class="info-label">备注</text><text>{{order.remark}}</text></view>
+    <view class="info-row">
+      <text class="info-label">骑手</text>
+      <text>{{order.rider ? order.rider.nickname + ' ' + (order.rider.phone || '') : '等待接单'}}</text>
+    </view>
+  </view>
+
+  <!-- 商品 -->
+  <view class="section">
+    <view class="section-title">🛒 商品明细</view>
+    <view wx:for="{{order.items}}" wx:key="id" class="item-row">
+      <view class="item-info"><text>{{item.product.name}}</text></view>
+      <text class="item-price">¥{{item.unit_price}} × {{item.quantity}}</text>
+    </view>
+    <view class="total-row">
+      <text>合计：</text><text class="total-price">¥{{order.total_price}}</text>
+    </view>
+  </view>
+
+  <!-- 评价 -->
+  <view class="section" wx:if="{{order.status === 'completed' && !order.review}}">
+    <button class="review-btn" bindtap="goReview">✍️ 评价这个订单</button>
+  </view>
+  <view class="section" wx:if="{{order.review}}">
+    <view class="section-title">我的评价</view>
+    <view class="review-rating">
+      <text wx:for="{{[1,2,3,4,5]}}" wx:key="*this" class="star {{order.review.rating >= item ? 'filled' : ''}}">★</text>
+    </view>
+    <view class="review-content" wx:if="{{order.review.content}}">{{order.review.content}}</view>
+  </view>
+
+</view>

@@ -1,0 +1,48 @@
+<!-- 订单列表 -->
+<view class="page">
+
+  <!-- 状态筛选 -->
+  <view class="status-tabs">
+    <view wx:for="{{tabs}}" wx:key="value"
+      class="tab {{activeStatus === item.value ? 'active' : ''}}"
+      bindtap="switchTab" data-status="{{item.value}}">{{item.label}}</view>
+  </view>
+
+  <view wx:if="{{orders.length === 0}}" class="empty-state">
+    <text class="icon">📋</text>
+    <text class="text">暂无订单</text>
+  </view>
+
+  <view wx:else class="order-list">
+    <view wx:for="{{orders}}" wx:key="id" class="order-card">
+      <!-- 头部 -->
+      <view class="order-header" bindtap="goDetail" data-id="{{item.id}}">
+        <text class="order-no">{{item.order_no}}</text>
+        <text class="order-status tag-{{item.status}}">{{statusText[item.status]}}</text>
+      </view>
+
+      <!-- 商品 -->
+      <view class="order-items" bindtap="goDetail" data-id="{{item.id}}">
+        <view wx:for="{{item.items}}" wx:for-item="oi" wx:key="id" class="oi-row">
+          <image class="oi-img" src="{{oi.product.image || '/images/default-food.png'}}" mode="aspectFill" />
+          <text class="oi-name">{{oi.product.name}}</text>
+          <text class="oi-info">×{{oi.quantity}}</text>
+        </view>
+      </view>
+
+      <!-- 底部 -->
+      <view class="order-footer">
+        <text class="order-total">共{{item.items.length}}件 合计 ¥{{item.total_price}}</text>
+        <!-- 已完成未评价 → 显示评价按钮 -->
+        <view wx:if="{{item.status === 'completed' && !item.review}}" class="review-entry" catchtap="goReview" data-id="{{item.id}}">
+          <text>⭐ 评价</text>
+        </view>
+        <!-- 已评价 → 显示评分 -->
+        <view wx:if="{{item.review}}" class="reviewed-badge">
+          <text wx:for="{{[1,2,3,4,5]}}" wx:key="*this" class="mini-star {{item.review.rating >= item ? 'on' : ''}}">★</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+</view>

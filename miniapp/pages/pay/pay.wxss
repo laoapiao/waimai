@@ -1,0 +1,121 @@
+.page {
+  padding-bottom: 120rpx;
+  background: #f5f5f5;
+  min-height: 100vh;
+}
+
+/* 金额展示 */
+.amount-card {
+  background: linear-gradient(135deg, #ff6b35, #ff8c5a);
+  margin: 24rpx;
+  padding: 48rpx 24rpx;
+  border-radius: 20rpx;
+  text-align: center;
+}
+
+.amount-label {
+  font-size: 28rpx;
+  color: rgba(255,255,255,0.8);
+}
+
+.amount-value {
+  font-size: 72rpx;
+  font-weight: bold;
+  color: #fff;
+  display: block;
+  margin: 16rpx 0;
+}
+
+.amount-desc {
+  font-size: 22rpx;
+  color: rgba(255,255,255,0.6);
+}
+
+/* 区块 */
+.section {
+  background: #fff;
+  margin: 0 24rpx 20rpx;
+  border-radius: 16rpx;
+  padding: 24rpx;
+}
+
+.section-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  margin-bottom: 16rpx;
+  color: #333;
+}
+
+.item-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8rpx 0;
+}
+
+.item-name { font-size: 26rpx; color: #666; }
+.item-price { font-size: 26rpx; color: #333; }
+
+.divider {
+  height: 1rpx;
+  background: #f0f0f0;
+  margin: 16rpx 0;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8rpx 0;
+  font-size: 26rpx;
+  color: #666;
+}
+
+/* 支付方式 */
+.pay-method {
+  display: flex;
+  align-items: center;
+  padding: 20rpx;
+  border: 2rpx solid #52c41a;
+  border-radius: 12rpx;
+  background: #f6ffed;
+}
+
+.pay-icon { font-size: 36rpx; margin-right: 12rpx; }
+.pay-name { font-size: 28rpx; flex: 1; color: #333; }
+.pay-check {
+  width: 36rpx; height: 36rpx;
+  border-radius: 50%;
+  background: #52c41a;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20rpx;
+  font-weight: bold;
+}
+
+/* 底部 */
+.bottom-bar {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: #fff;
+  padding: 20rpx 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.total-line { font-size: 26rpx; }
+.final-price { font-size: 44rpx; color: #ff6b35; font-weight: bold; }
+
+.pay-btn {
+  background: #52c41a;
+  color: #fff;
+  border-radius: 44rpx;
+  padding: 0 60rpx;
+  height: 80rpx;
+  line-height: 80rpx;
+  font-size: 30rpx;
+  font-weight: bold;
+  border: none;
+}

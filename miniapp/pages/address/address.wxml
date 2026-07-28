@@ -1,0 +1,42 @@
+<!-- 收货地址管理 -->
+<view class="page">
+
+  <view wx:if="{{addresses.length === 0}}" class="empty-state">
+    <text class="icon">📍</text>
+    <text class="text">还没有收货地址</text>
+    <text class="sub">点击下方按钮添加</text>
+  </view>
+
+  <view wx:else class="addr-list">
+    <view wx:for="{{addresses}}" wx:key="id" class="addr-card {{item.isDefault ? 'default' : ''}}">
+      <view class="addr-header">
+        <text class="addr-name">{{item.name}}</text>
+        <text class="addr-phone">{{item.phone}}</text>
+        <text wx:if="{{item.isDefault}}" class="default-tag">默认</text>
+      </view>
+      <text class="addr-detail">{{item.province}}{{item.city}}{{item.district}} {{item.detail}}</text>
+      <view class="addr-actions">
+        <text class="action-link" bindtap="setDefault" data-id="{{item.id}}">{{item.isDefault ? '已默认' : '设为默认'}}</text>
+        <text class="action-link" bindtap="editAddress" data-id="{{item.id}}">编辑</text>
+        <text class="action-link danger" bindtap="deleteAddress" data-id="{{item.id}}">删除</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 新增按钮 -->
+  <view class="bottom-btn">
+    <button class="add-btn" bindtap="addAddress">+ 新增收货地址</button>
+  </view>
+
+  <!-- 编辑/新增弹窗 -->
+  <view class="modal-mask" wx:if="{{showModal}}" bindtap="closeModal"></view>
+  <view class="modal" wx:if="{{showModal}}">
+    <view class="modal-title">{{editing ? '编辑地址' : '新增地址'}}</view>
+    <input class="modal-input" placeholder="收货人姓名" value="{{form.name}}" bindinput="onField" data-field="name" />
+    <input class="modal-input" placeholder="手机号" type="number" maxlength="11" value="{{form.phone}}" bindinput="onField" data-field="phone" />
+    <input class="modal-input" placeholder="省市区（如：北京市朝阳区）" value="{{form.district}}" bindinput="onField" data-field="district" />
+    <input class="modal-input" placeholder="详细地址（门牌号、楼层）" value="{{form.detail}}" bindinput="onField" data-field="detail" />
+    <button class="modal-save" bindtap="saveAddress">保存</button>
+  </view>
+
+</view>

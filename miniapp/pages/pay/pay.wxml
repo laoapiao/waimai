@@ -1,0 +1,54 @@
+<!-- 支付确认页（模拟支付） -->
+<view class="page">
+
+  <!-- 金额展示 -->
+  <view class="amount-card">
+    <text class="amount-label">应付金额</text>
+    <text class="amount-value">¥{{totalPrice}}</text>
+    <text class="amount-desc">模拟支付 · 不产生实际扣款</text>
+  </view>
+
+  <!-- 订单摘要 -->
+  <view class="section">
+    <view class="section-title">订单摘要</view>
+    <view wx:for="{{cart}}" wx:key="id" class="item-row">
+      <text class="item-name">{{item.name}} × {{item.quantity}}</text>
+      <text class="item-price">¥{{item.subtotal}}</text>
+    </view>
+    <view class="divider"></view>
+    <view class="info-row">
+      <text>联系电话</text>
+      <text>{{contactPhone}}</text>
+    </view>
+    <view class="info-row">
+      <text>配送地址</text>
+      <text>{{address}}</text>
+    </view>
+    <view wx:if="{{remark}}" class="info-row">
+      <text>备注</text>
+      <text>{{remark}}</text>
+    </view>
+  </view>
+
+  <!-- 支付方式（模拟） -->
+  <view class="section">
+    <view class="section-title">支付方式</view>
+    <view class="pay-method selected">
+      <text class="pay-icon">💚</text>
+      <text class="pay-name">微信支付（模拟）</text>
+      <view class="pay-check">✓</view>
+    </view>
+  </view>
+
+  <!-- 确认支付按钮 -->
+  <view class="bottom-bar">
+    <view class="total-line">
+      <text>实付：</text>
+      <text class="final-price">¥{{totalPrice}}</text>
+    </view>
+    <button class="pay-btn" bindtap="handlePay" loading="{{paying}}">
+      {{paying ? '支付中...' : '确认支付'}}
+    </button>
+  </view>
+
+</view>

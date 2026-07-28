@@ -1,0 +1,59 @@
+<!-- 首页：商品浏览 -->
+
+<!-- 顶栏 -->
+<view class="top-bar">
+  <view class="top-bar-inner">
+    <view class="top-row">
+      <view class="user-brief" bindtap="goMine" wx:if="{{userInfo.nickname}}">
+        <image wx:if="{{userInfo.avatar}}" class="user-avatar-sm" src="{{userInfo.avatar}}" mode="aspectFill" />
+        <text wx:else class="user-avatar-placeholder">👤</text>
+        <text class="user-name-sm">{{userInfo.nickname}}</text>
+      </view>
+    </view>
+    <text class="shop-name">🥬 阿飘菜市</text>
+    <text class="shop-desc">新鲜食材 · 配送到家</text>
+  </view>
+</view>
+
+<!-- 搜索 -->
+<view class="search-wrap">
+  <view class="search-box">
+    <text class="search-icon">🔍</text>
+    <input class="search-input" placeholder="搜索想吃的东西..." value="{{keyword}}" bindinput="onSearchInput" confirm-type="search" bindconfirm="onSearch" />
+  </view>
+</view>
+
+<!-- 分类 -->
+<scroll-view class="cate-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+  <view class="cate-item {{activeCategory === 0 ? 'cate-active' : ''}}" bindtap="switchCategory" data-id="0">🔥 全部</view>
+  <view wx:for="{{categories}}" wx:key="id" class="cate-item {{activeCategory === item.id ? 'cate-active' : ''}}" bindtap="switchCategory" data-id="{{item.id}}">
+    <image wx:if="{{item.icon && item.icon.indexOf('http') === 0}}" class="cate-icon-img" src="{{item.icon}}" mode="aspectFill" />
+    <text wx:else>{{item.icon || ''}}</text>
+    <text>{{item.name}}</text>
+  </view>
+</scroll-view>
+
+<!-- 商品网格 -->
+<view class="product-grid">
+  <view wx:for="{{products}}" wx:key="id" class="p-card" bindtap="goDetail" data-id="{{item.id}}">
+    <!-- 图片 -->
+    <view class="p-img-wrap">
+      <image class="p-img" src="{{item.image || '/images/default-food.png'}}" mode="aspectFill" lazy-load />
+      <view wx:if="{{item.sales_count > 0}}" class="p-sales">已售 {{item.sales_count}}</view>
+    </view>
+    <!-- 信息 -->
+    <view class="p-info">
+      <text class="p-name">{{item.name}}</text>
+      <text class="p-desc">{{item.description || '暂无描述'}}</text>
+      <view class="p-bottom">
+        <text class="p-price">¥{{item.price}}</text>
+        <view class="p-add" catchtap="addToCart" data-item="{{item}}">+</view>
+      </view>
+    </view>
+  </view>
+</view>
+
+<view wx:if="{{!loading && products.length === 0}}" class="empty-state">
+  <text class="icon">🍽️</text>
+  <text class="text">暂无商品</text>
+</view>

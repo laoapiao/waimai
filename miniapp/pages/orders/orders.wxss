@@ -1,0 +1,56 @@
+/* 订单列表 */
+
+.status-tabs {
+  display: flex; background: #fff;
+  padding: 8rpx 24rpx 0;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.03);
+}
+
+.tab {
+  flex: 1; text-align: center; padding: 20rpx 0;
+  font-size: 27rpx; color: #666; position: relative;
+}
+.tab.active { color: #ff6b35; font-weight: 700; }
+.tab.active::after {
+  content: ''; position: absolute; bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 56rpx; height: 5rpx; background: #ff6b35; border-radius: 3rpx;
+}
+
+/* 订单卡片 */
+.order-list { padding: 24rpx; }
+.order-card {
+  background: #fff; border-radius: 20rpx;
+  margin-bottom: 20rpx; overflow: hidden;
+  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04);
+}
+
+.order-header {
+  display: flex; justify-content: space-between;
+  padding: 20rpx 24rpx; border-bottom: 1rpx solid #f5f5f5;
+}
+.order-no { font-size: 24rpx; color: #999; font-family: monospace; }
+.order-status { font-size: 26rpx; font-weight: 700; }
+
+.order-items { padding: 18rpx 24rpx; }
+.oi-row { display: flex; align-items: center; margin-bottom: 10rpx; }
+.oi-img { width: 64rpx; height: 64rpx; border-radius: 10rpx; background: #f5f5f5; }
+.oi-name { flex: 1; font-size: 28rpx; margin-left: 16rpx; }
+.oi-info { font-size: 26rpx; color: #999; }
+
+.order-footer {
+  padding: 18rpx 24rpx; text-align: right;
+  border-top: 1rpx solid #f5f5f5; background: #fafafa;
+}
+.order-total { font-size: 28rpx; color: #333; font-weight: 600; }
+
+/* 评价入口 */
+.order-footer { display: flex; justify-content: space-between; align-items: center; }
+.review-entry {
+  background: #fff2e8; color: #ff6b35;
+  padding: 6rpx 20rpx; border-radius: 20rpx;
+  font-size: 24rpx; font-weight: 600;
+}
+.reviewed-badge { display: flex; gap: 2rpx; }
+.mini-star { font-size: 28rpx; color: #e8e8e8; }
+.mini-star.on { color: #faad14; }

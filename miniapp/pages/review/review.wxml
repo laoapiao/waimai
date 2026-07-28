@@ -1,0 +1,30 @@
+<!-- 评价订单 -->
+<view class="page">
+  <view class="section">
+    <view class="section-title">评分</view>
+    <view class="star-row">
+      <text
+        wx:for="{{[1,2,3,4,5]}}"
+        wx:key="*this"
+        class="star {{rating >= item ? 'active' : ''}}"
+        bindtap="setRating"
+        data-rating="{{item}}"
+      >★</text>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-title">评价内容（选填）</view>
+    <textarea
+      class="review-textarea"
+      placeholder="说说你的用餐体验吧~"
+      value="{{content}}"
+      bindinput="onContentInput"
+      maxlength="500"
+    />
+  </view>
+
+  <view class="submit-area">
+    <button class="submit-btn" bindtap="submitReview" loading="{{submitting}}">提交评价</button>
+  </view>
+</view>
