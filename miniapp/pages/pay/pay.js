@@ -63,15 +63,12 @@ Page({
     });
   },
 
-  // 确认支付（模拟）
+  // 确认支付（支持真实支付 + 模拟支付）
   async handlePay() {
     this.setData({ paying: true });
 
     try {
-      // 模拟支付延迟（让用户感觉在"支付中"）
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // 创建订单
+      // 1. 先创建订单
       const items = this.data.cart.map(item => ({
         product_id: item.id,
         quantity: item.quantity,
@@ -86,17 +83,46 @@ Page({
         lng: this.data.lng,
       });
 
-      // 清空购物车
+      const orderId = res.data.id;
+
+      // 2. 调起支付
+      const { DEV_MODE } = require('../../utils/config').CONFIG;
+      if (!DEV_MODE) {
+        // 真实微信支付
+        const token = wx.getStorageSync('token');
+        const payRes = await new Promise((resolve, reject) => {
+          wx.request({
+            url: getApp().globalData.baseURL + '/pay/prepay',
+            method: 'POST',
+            header: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+            data: { orderId },
+            success: r => r.data.code === 200 ? resolve(r.data.data) : reject(r.data),
+            fail: reject,
+          });
+        });
+
+        if (payRes.realPay) {
+          // 调用微信支付
+          await new Promise((resolve, reject) => {
+            wx.requestPayment({
+              ...payRes.params,
+              success: resolve,
+              fail: reject,
+            });
+          });
+        }
+      } else {
+        // 开发模式：模拟支付延迟
+        await new Promise(resolve => setTimeout(resolve, 800));
+      }
+
+      // 3. 清空购物车
       wx.removeStorageSync('cart');
       getApp().updateCartBadge();
 
       wx.showToast({ title: '支付成功！', icon: 'success' });
-
-      // 跳转订单详情
       setTimeout(() => {
-        wx.redirectTo({
-          url: '/pages/order-detail/order-detail?id=' + res.data.id,
-        });
+        wx.redirectTo({ url: '/pages/order-detail/order-detail?id=' + orderId });
       }, 800);
     } catch (err) {
       wx.showToast({ title: err.message || '支付失败', icon: 'none' });

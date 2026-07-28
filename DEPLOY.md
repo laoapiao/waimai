@@ -77,7 +77,30 @@ certbot --nginx -d 你的域名.com
 2. mp.weixin.qq.com → 开发管理 → 提交审核
 3. 服务器域名配置：把 `api.你的域名.com` 加到 request 合法域名
 
-## 九、APP 打包
+## 十、代码更新（不丢数据）
+
+```bash
+cd /home/admin/waimai
+bash deploy/update.sh
+```
+
+## 十一、数据备份
+
+```bash
+# 手动备份
+bash /home/admin/waimai/deploy/backup.sh
+
+# 每天凌晨3点自动备份
+(crontab -l 2>/dev/null; echo "0 3 * * * bash /home/admin/waimai/deploy/backup.sh") | crontab -
+```
+
+## 十二、备份恢复
+
+```bash
+# 恢复某个日期的备份
+mysql -u waimai_user -pWaimai2024Abc waimai < /home/admin/backups/20260101/waimai.sql
+cp -r /home/admin/backups/20260101/uploads/* /home/admin/waimai/server/uploads/
+```
 
 ```bash
 cd /home/waimai/app

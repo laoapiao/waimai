@@ -14,7 +14,11 @@
         <button class="avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar" />
       </view>
       <view class="user-info">
-        <text class="nickname">{{userInfo.nickname || '未登录'}}</text>
+        <view class="nickname-wrap">
+          <text class="nickname">{{userInfo.nickname || '未登录'}}</text>
+          <view class="nickname-hint">✎</view>
+          <input class="nickname-input" type="nickname" value="{{userInfo.nickname}}" bindchange="onNicknameChange" bindblur="onNicknameBlur" />
+        </view>
         <text class="phone">{{userInfo.phone || '点击登录'}}</text>
       </view>
       <view class="role-tag">{{roleText}}</view>

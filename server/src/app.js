@@ -26,6 +26,7 @@ const orderRoutes = require('./routes/orders');
 const reviewRoutes = require('./routes/reviews');
 const settingsRoutes = require('./routes/settings');
 const feedbackRoutes = require('./routes/feedback');
+const payRoutes = require('./routes/pay');
 
 // 创建 Express 应用
 const app = express();
@@ -107,6 +108,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/feedback', feedbackRoutes);
+app.use('/api/pay', payRoutes);
 
 // ========== 6. 错误处理（必须放在路由之后） ==========
 app.use(notFound);

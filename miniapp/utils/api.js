@@ -70,6 +70,7 @@ const review = {
 const auth = {
   login: (phone, password) => request('/auth/login', { method: 'POST', data: { phone, password } }),
   register: (data) => request('/auth/register', { method: 'POST', data }),
+  wechatLogin: (code, nickname, avatar) => request('/auth/wechat-login', { method: 'POST', data: { code, nickname, avatar } }),
 };
 
 module.exports = { product, category, order, review, auth };

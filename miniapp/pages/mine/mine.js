@@ -49,6 +49,31 @@ Page({
     this.setData({ addressCount: addresses.length });
   },
 
+  // 微信昵称修改
+  onNicknameChange(e) {
+    const nickname = e.detail.value;
+    if (!nickname) return;
+    this.ensureLogin(() => {
+      const userInfo = wx.getStorageSync('userInfo') || {};
+      wx.request({
+        url: getApp().globalData.baseURL + '/auth/me',
+        method: 'PUT',
+        header: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + wx.getStorageSync('token') },
+        data: { nickname, avatar: userInfo.avatar },  // 带上当前头像一起更新
+        success: (res) => {
+          if (res.data.code === 200 && res.data.data) {
+            wx.setStorageSync('userInfo', res.data.data);
+            getApp().globalData.userInfo = res.data.data;
+            this.loadUser();
+            wx.showToast({ title: '微信资料已同步', icon: 'success' });
+          }
+        },
+      });
+    });
+  },
+
+  onNicknameBlur(e) { this.onNicknameChange(e); },
+
   // 微信头像选择
   onChooseAvatar(e) {
     const avatarUrl = e.detail?.avatarUrl;
@@ -57,18 +82,19 @@ Page({
     // 先确保登录有效
     this.ensureLogin(async () => {
       wx.showLoading({ title: '同步中...' });
+      const userInfo = wx.getStorageSync('userInfo') || {};
       wx.request({
         url: getApp().globalData.baseURL + '/auth/me',
         method: 'PUT',
         header: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + wx.getStorageSync('token') },
-        data: { avatar: avatarUrl },
+        data: { avatar: avatarUrl, nickname: userInfo.nickname },  // 带上当前昵称一起
         success: (res) => {
           wx.hideLoading();
           if (res.data.code === 200 && res.data.data) {
             wx.setStorageSync('userInfo', res.data.data);
             getApp().globalData.userInfo = res.data.data;
             this.loadUser();
-            wx.showToast({ title: '头像已同步', icon: 'success' });
+            wx.showToast({ title: '微信资料已同步', icon: 'success' });
           } else {
             wx.showToast({ title: '同步失败', icon: 'none' });
           }
@@ -81,24 +107,15 @@ Page({
   // 确保登录（token过期自动重新登录）
   ensureLogin(callback) {
     const doLogin = () => {
+      const { smartLogin } = require('../../utils/auth');
       wx.showLoading({ title: '登录中...' });
-      wx.request({
-        url: getApp().globalData.baseURL + '/auth/login',
-        method: 'POST',
-        data: { phone: '13800000002', password: '123456' },
-        success: (res) => {
-          wx.hideLoading();
-          if (res.data.code === 200) {
-            wx.setStorageSync('token', res.data.data.token);
-            wx.setStorageSync('userInfo', res.data.data.user);
-            getApp().globalData.token = res.data.data.token;
-            getApp().globalData.userInfo = res.data.data.user;
-            callback();
-          } else {
-            wx.showToast({ title: '登录失败', icon: 'none' });
-          }
-        },
-        fail: () => { wx.hideLoading(); wx.showToast({ title: '网络错误', icon: 'none' }); },
+      smartLogin().then(() => {
+        wx.hideLoading();
+        this.loadUser();
+        callback();
+      }).catch(() => {
+        wx.hideLoading();
+        wx.showToast({ title: '登录失败，请重试', icon: 'none' });
       });
     };
 

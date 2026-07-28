@@ -144,6 +144,64 @@ router.post('/login', [
   }
 });
 
+// ========== POST /api/auth/wechat-login — 微信一键登录 ==========
+router.post('/wechat-login', [
+  body('code').notEmpty().withMessage('缺少微信code'),
+  handleValidation,
+], async (req, res, next) => {
+  try {
+    const { code, nickname, avatar } = req.body;
+    const appid = process.env.WX_APPID;
+    const secret = process.env.WX_SECRET;
+
+    let openid = null;
+
+    // 有真实appid时调用微信接口，否则用code模拟
+    if (appid && secret && appid !== '你的小程序AppID') {
+      const https = require('https');
+      const wxRes = await new Promise((resolve, reject) => {
+        https.get(`https://api.weixin.qq.com/sns/jscode2session?appid=${appid}&secret=${secret}&js_code=${code}&grant_type=authorization_code`, (resp) => {
+          let data = '';
+          resp.on('data', chunk => data += chunk);
+          resp.on('end', () => resolve(JSON.parse(data)));
+        }).on('error', reject);
+      });
+      openid = wxRes.openid;
+      if (!openid) {
+        return res.status(400).json({ code: 400, message: '微信登录失败: ' + (wxRes.errmsg || '未知错误') });
+      }
+    } else {
+      // 开发模式：用code的一部分模拟openid
+      openid = 'dev_' + (code || Date.now().toString(36));
+    }
+
+    // 查找或创建用户
+    let user = await User.findOne({ where: { wx_openid: openid } });
+    if (!user) {
+      user = await User.create({
+        wx_openid: openid,
+        role: 'customer',
+        nickname: nickname || '新顾客',
+        avatar: avatar || null,
+      });
+    } else {
+      // 更新昵称和头像
+      if (nickname) user.nickname = nickname;
+      if (avatar) user.avatar = avatar;
+      await user.save();
+    }
+
+    const token = generateToken(user);
+    res.json({
+      code: 200,
+      message: '微信登录成功',
+      data: { user: toSafeUser(user), token },
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // ========== GET /api/auth/me — 获取当前用户信息 ==========
 router.get('/me', requireAuth, async (req, res) => {
   res.json({ code: 200, data: toSafeUser(req.user) });
