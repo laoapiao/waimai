@@ -52,38 +52,27 @@ Page({
   // 微信头像选择（open-type="chooseAvatar" 回调）
   onChooseAvatar(e) {
     const avatarUrl = e.detail?.avatarUrl;
-    if (!avatarUrl || avatarUrl === 'cancel') return;  // 用户取消，不处理
-    if (!avatarUrl) return;
+    if (!avatarUrl || avatarUrl === 'cancel') return;
     wx.showLoading({ title: '同步中...' });
 
-    // 先下载微信头像到本地临时文件，再上传到我们服务器
-    wx.downloadFile({
-      url: avatarUrl,
-      success: (downloadRes) => {
-        wx.uploadFile({
-          url: getApp().globalData.baseURL + '/auth/me',
-          filePath: downloadRes.tempFilePath,
-          name: 'avatar',
-          header: { Authorization: 'Bearer ' + wx.getStorageSync('token') },
-          success: (uploadRes) => {
-            const data = JSON.parse(uploadRes.data);
-            if (data.code === 200 && data.data) {
-              wx.setStorageSync('userInfo', data.data);
-              getApp().globalData.userInfo = data.data;
-              this.loadUser();
-              wx.showToast({ title: '微信头像已同步', icon: 'success' });
-            } else {
-              wx.showToast({ title: '同步失败', icon: 'none' });
-            }
-          },
-          fail: () => wx.showToast({ title: '同步失败', icon: 'none' }),
-          complete: () => wx.hideLoading(),
-        });
-      },
-      fail: () => {
+    // 直接用微信头像 URL 更新资料
+    wx.request({
+      url: getApp().globalData.baseURL + '/auth/me',
+      method: 'PUT',
+      header: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + wx.getStorageSync('token') },
+      data: { avatar: avatarUrl },
+      success: (res) => {
         wx.hideLoading();
-        wx.showToast({ title: '下载失败', icon: 'none' });
+        if (res.data.code === 200 && res.data.data) {
+          wx.setStorageSync('userInfo', res.data.data);
+          getApp().globalData.userInfo = res.data.data;
+          this.loadUser();
+          wx.showToast({ title: '头像已同步', icon: 'success' });
+        } else {
+          wx.showToast({ title: '同步失败', icon: 'none' });
+        }
       },
+      fail: () => { wx.hideLoading(); wx.showToast({ title: '网络错误', icon: 'none' }); },
     });
   },
 
@@ -107,7 +96,6 @@ Page({
             }
           },
           fail: () => wx.showToast({ title: '上传失败', icon: 'none' }),
-          complete: () => wx.hideLoading(),
         });
       },
     });
