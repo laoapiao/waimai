@@ -104,7 +104,6 @@ Page({
       fail: () => { wx.hideLoading(); wx.showToast({ title: '网络错误', icon: 'none' }); },
     });
   },
-  },
 
   // 更换头像（备用：相册/拍照）
   changeAvatar() {
