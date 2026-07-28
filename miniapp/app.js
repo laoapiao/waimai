@@ -19,12 +19,16 @@ App({
   },
 
   updateCartBadge() {
-    const cart = wx.getStorageSync('cart') || [];
-    const count = cart.reduce((sum, item) => sum + item.quantity, 0);
-    if (count > 0) {
-      wx.setTabBarBadge({ index: 1, text: String(count) });
-    } else {
-      wx.removeTabBarBadge({ index: 1 });
+    try {
+      const cart = wx.getStorageSync('cart') || [];
+      const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+      if (count > 0) {
+        wx.setTabBarBadge({ index: 1, text: String(count) });
+      } else {
+        wx.removeTabBarBadge({ index: 1 });
+      }
+    } catch (e) {
+      // 某些情况下 removeTabBarBadge 可能报错，忽略
     }
   },
 

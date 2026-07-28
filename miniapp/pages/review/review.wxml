@@ -25,6 +25,6 @@
   </view>
 
   <view class="submit-area">
-    <button class="submit-btn" bindtap="submitReview" loading="{{submitting}}">提交评价</button>
+    <button class="submit-btn" bindtap="submitReview" loading="{{submitting}}" disabled="{{submitting}}">提交评价</button>
   </view>
 </view>

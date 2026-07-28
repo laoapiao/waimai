@@ -43,7 +43,13 @@ Page({
       wx.showToast({ title: '评价成功！', icon: 'success' });
       setTimeout(() => wx.navigateBack(), 1000);
     } catch (err) {
-      wx.showToast({ title: err.message || '评价失败', icon: 'none' });
+      // 409 = 已经评价过
+      if (err.message && err.message.includes('已经评价')) {
+        wx.showToast({ title: '该订单已评价过', icon: 'none' });
+        setTimeout(() => wx.navigateBack(), 1000);
+      } else {
+        wx.showToast({ title: err.message || '评价失败', icon: 'none' });
+      }
     } finally {
       this.setData({ submitting: false });
     }

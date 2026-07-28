@@ -21,6 +21,7 @@ Page({
 
   onShow() {
     this.loadProducts();
+    getApp().updateCartBadge();
     // 加载用户信息显示头像
     const userInfo = wx.getStorageSync('userInfo') || {};
     this.setData({ userInfo });
