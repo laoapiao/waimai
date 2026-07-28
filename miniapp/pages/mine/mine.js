@@ -49,31 +49,61 @@ Page({
     this.setData({ addressCount: addresses.length });
   },
 
-  // 微信头像选择（open-type="chooseAvatar" 回调）
+  // 微信头像选择
   onChooseAvatar(e) {
     const avatarUrl = e.detail?.avatarUrl;
     if (!avatarUrl || avatarUrl === 'cancel') return;
-    wx.showLoading({ title: '同步中...' });
 
-    // 直接用微信头像 URL 更新资料
+    // 先确保登录有效
+    this.ensureLogin(async () => {
+      wx.showLoading({ title: '同步中...' });
+      wx.request({
+        url: getApp().globalData.baseURL + '/auth/me',
+        method: 'PUT',
+        header: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + wx.getStorageSync('token') },
+        data: { avatar: avatarUrl },
+        success: (res) => {
+          wx.hideLoading();
+          if (res.data.code === 200 && res.data.data) {
+            wx.setStorageSync('userInfo', res.data.data);
+            getApp().globalData.userInfo = res.data.data;
+            this.loadUser();
+            wx.showToast({ title: '头像已同步', icon: 'success' });
+          } else {
+            wx.showToast({ title: '同步失败', icon: 'none' });
+          }
+        },
+        fail: () => { wx.hideLoading(); wx.showToast({ title: '网络错误', icon: 'none' }); },
+      });
+    });
+  },
+
+  // 确保登录
+  ensureLogin(callback) {
+    const token = wx.getStorageSync('token');
+    if (token) return callback();
+    const { DEV_MODE } = require('../../utils/config').CONFIG;
+    if (!DEV_MODE) { wx.showToast({ title: '请先登录', icon: 'none' }); return; }
+    wx.showLoading({ title: '登录中...' });
     wx.request({
-      url: getApp().globalData.baseURL + '/auth/me',
-      method: 'PUT',
-      header: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + wx.getStorageSync('token') },
-      data: { avatar: avatarUrl },
+      url: getApp().globalData.baseURL + '/auth/login',
+      method: 'POST',
+      data: { phone: '13800000002', password: '123456' },
       success: (res) => {
         wx.hideLoading();
-        if (res.data.code === 200 && res.data.data) {
-          wx.setStorageSync('userInfo', res.data.data);
-          getApp().globalData.userInfo = res.data.data;
-          this.loadUser();
-          wx.showToast({ title: '头像已同步', icon: 'success' });
+        if (res.data.code === 200) {
+          wx.setStorageSync('token', res.data.data.token);
+          wx.setStorageSync('userInfo', res.data.data.user);
+          getApp().globalData.token = res.data.data.token;
+          getApp().globalData.userInfo = res.data.data.user;
+          callback();
         } else {
-          wx.showToast({ title: '同步失败', icon: 'none' });
+          wx.showToast({ title: '登录失败', icon: 'none' });
         }
       },
       fail: () => { wx.hideLoading(); wx.showToast({ title: '网络错误', icon: 'none' }); },
     });
+  },
   },
 
   // 更换头像（备用：相册/拍照）
