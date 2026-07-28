@@ -78,31 +78,51 @@ Page({
     });
   },
 
-  // 确保登录
+  // 确保登录（token过期自动重新登录）
   ensureLogin(callback) {
+    const doLogin = () => {
+      wx.showLoading({ title: '登录中...' });
+      wx.request({
+        url: getApp().globalData.baseURL + '/auth/login',
+        method: 'POST',
+        data: { phone: '13800000002', password: '123456' },
+        success: (res) => {
+          wx.hideLoading();
+          if (res.data.code === 200) {
+            wx.setStorageSync('token', res.data.data.token);
+            wx.setStorageSync('userInfo', res.data.data.user);
+            getApp().globalData.token = res.data.data.token;
+            getApp().globalData.userInfo = res.data.data.user;
+            callback();
+          } else {
+            wx.showToast({ title: '登录失败', icon: 'none' });
+          }
+        },
+        fail: () => { wx.hideLoading(); wx.showToast({ title: '网络错误', icon: 'none' }); },
+      });
+    };
+
     const token = wx.getStorageSync('token');
-    if (token) return callback();
-    const { DEV_MODE } = require('../../utils/config').CONFIG;
-    if (!DEV_MODE) { wx.showToast({ title: '请先登录', icon: 'none' }); return; }
-    wx.showLoading({ title: '登录中...' });
-    wx.request({
-      url: getApp().globalData.baseURL + '/auth/login',
-      method: 'POST',
-      data: { phone: '13800000002', password: '123456' },
-      success: (res) => {
-        wx.hideLoading();
-        if (res.data.code === 200) {
-          wx.setStorageSync('token', res.data.data.token);
-          wx.setStorageSync('userInfo', res.data.data.user);
-          getApp().globalData.token = res.data.data.token;
-          getApp().globalData.userInfo = res.data.data.user;
-          callback();
-        } else {
-          wx.showToast({ title: '登录失败', icon: 'none' });
-        }
-      },
-      fail: () => { wx.hideLoading(); wx.showToast({ title: '网络错误', icon: 'none' }); },
-    });
+    if (token) {
+      // token存在，先验证是否有效
+      wx.request({
+        url: getApp().globalData.baseURL + '/auth/me',
+        header: { Authorization: 'Bearer ' + token },
+        success: (res) => {
+          if (res.data.code === 200) {
+            wx.setStorageSync('userInfo', res.data.data);
+            getApp().globalData.userInfo = res.data.data;
+            this.loadUser();
+            callback();
+          } else {
+            doLogin(); // token无效，重新登录
+          }
+        },
+        fail: () => doLogin(),
+      });
+    } else {
+      doLogin();
+    }
   },
 
   // 更换头像（备用：相册/拍照）
