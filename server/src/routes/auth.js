@@ -167,7 +167,7 @@ router.put('/me', requireAuth, avatarUpload.single('avatar'), async (req, res, n
       if (deposit < 200) {
         return res.status(400).json({ code: 400, message: '需要缴纳 ¥200 保证金才能多单配送' });
       }
-      if (updates.max_orders > 5) updates.max_orders = 5;
+      if (updates.max_orders > 20) updates.max_orders = 20;
     }
 
     await req.user.update(updates);
