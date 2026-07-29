@@ -5,7 +5,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   View, Text, FlatList, TouchableOpacity, Switch,
-  StyleSheet, Alert, RefreshControl, Vibration,
+  StyleSheet, Alert, RefreshControl, Vibration, Platform,
 } from 'react-native';
 import Slider from '@react-native-community/slider';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -37,7 +37,7 @@ export default function RiderScreen({ navigation }) {
     requestLocationPermission();
     const unsub = onSocketEvent('order:new', (order) => {
       setAvailableOrders(prev => [order, ...prev]);
-      Vibration.vibrate(500);
+      if (!isWeb) Vibration.vibrate(500);
     });
     return () => { unsub(); if (locationTimer.current) clearInterval(locationTimer.current); };
   }, []);
@@ -181,11 +181,14 @@ export default function RiderScreen({ navigation }) {
   };
 
   // ====== 定位 ======
+  const isWeb = Platform.OS === 'web';
   const requestLocationPermission = async () => {
+    if (isWeb) return;
     try { await Location.requestForegroundPermissionsAsync(); } catch (e) { /* ignore */ }
   };
 
   const startLocationUpdates = (orders) => {
+    if (isWeb) return;
     const deliveringOrders = orders.filter(o => o.status === 'delivering');
     deliveringRef.current = deliveringOrders;
     if (deliveringOrders.length > 0 && !locationTimer.current) {
