@@ -133,51 +133,51 @@ export default function RiderScreen({ navigation }) {
     setRouteMode(newMode);
   };
 
+  // ====== 通用确认（网页用 confirm，APP 用 Alert） ======
+  const showConfirm = (title, msg, onOk) => {
+    if (isWeb) {
+      if (window.confirm(`${title}\n\n${msg}`)) onOk();
+    } else {
+      Alert.alert(title, msg, [
+        { text: '取消', style: 'cancel' },
+        { text: '确定', onPress: onOk },
+      ]);
+    }
+  };
+
   // ====== 操作 ======
   const handleAccept = (order) => {
     if (activeCount >= (user.max_orders || 1)) {
-      return Alert.alert('接单上限', `当前最多同时接 ${user.max_orders} 单。缴纳保证金后可提升上限。`);
+      return alert(`当前最多同时接 ${user.max_orders} 单。缴纳保证金后可提升上限。`);
     }
-    Alert.alert('确认接单', `${order.order_no}\n${order.delivery_address}`, [
-      { text: '取消', style: 'cancel' },
-      { text: '我要接单', onPress: async () => {
-        try { await orderAPI.accept(order.id); loadOrders(); loadStats(); }
-        catch (err) { Alert.alert('接单失败', err.message); }
-      }},
-    ]);
+    showConfirm('确认接单', `${order.order_no}\n${order.delivery_address}`, async () => {
+      try { await orderAPI.accept(order.id); loadOrders(); loadStats(); }
+      catch (err) { alert('接单失败: ' + (err.message || '未知错误')); }
+    });
   };
 
   const handleArrived = (order) => {
-    Alert.alert('确认到店', '已到达取餐点？', [
-      { text: '取消', style: 'cancel' },
-      { text: '确认到店', onPress: async () => {
-        try { await orderAPI.updateStatus(order.id, 'arrived'); loadOrders(); }
-        catch (err) { Alert.alert('错误', err.message); }
-      }},
-    ]);
+    showConfirm('确认到店', '已到达取餐点？', async () => {
+      try { await orderAPI.updateStatus(order.id, 'arrived'); loadOrders(); }
+      catch (err) { alert('错误: ' + err.message); }
+    });
   };
 
   const handleDelivering = (order) => {
-    Alert.alert('开始配送', '确认已取餐并开始配送？', [
-      { text: '取消', style: 'cancel' },
-      { text: '开始配送', onPress: async () => {
-        try {
-          await orderAPI.updateStatus(order.id, 'delivering');
-          emitSocketEvent('rider:join_order', { orderId: order.id });
-          loadOrders();
-        } catch (err) { Alert.alert('错误', err.message); }
-      }},
-    ]);
+    showConfirm('开始配送', '确认已取餐并开始配送？', async () => {
+      try {
+        await orderAPI.updateStatus(order.id, 'delivering');
+        emitSocketEvent('rider:join_order', { orderId: order.id });
+        loadOrders();
+      } catch (err) { alert('错误: ' + err.message); }
+    });
   };
 
   const handleComplete = (order) => {
-    Alert.alert('完成配送', '确认已送达？', [
-      { text: '取消', style: 'cancel' },
-      { text: '确认完成', onPress: async () => {
-        try { await orderAPI.updateStatus(order.id, 'completed'); loadOrders(); loadStats(); }
-        catch (err) { Alert.alert('错误', err.message); }
-      }},
-    ]);
+    showConfirm('完成配送', '确认已送达？', async () => {
+      try { await orderAPI.updateStatus(order.id, 'completed'); loadOrders(); loadStats(); }
+      catch (err) { alert('错误: ' + err.message); }
+    });
   };
 
   // ====== 定位 ======
