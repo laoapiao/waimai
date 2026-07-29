@@ -37,8 +37,11 @@ async function request(url, options = {}) {
 // ========== API 函数 ==========
 export const authAPI = {
   login: (phone, password) => request('/auth/login', { method: 'POST', data: { phone, password } }),
+  register: (data) => request('/auth/register', { method: 'POST', data }),
   getMe: () => request('/auth/me'),
   updateProfile: (data) => request('/auth/me', { method: 'PUT', data }),
+  sendCode: (phone) => request('/auth/send-code', { method: 'POST', data: { phone } }),
+  verifyCode: (phone, code) => request('/auth/verify-code', { method: 'POST', data: { phone, code } }),
 };
 
 export const orderAPI = {
