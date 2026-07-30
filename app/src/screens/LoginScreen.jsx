@@ -40,8 +40,8 @@ export default function LoginScreen({ navigation }) {
         : await authAPI.login(phone, password);
       await doLogin(result);
     } catch (err) {
-      const msg = typeof err === 'string' ? err : (err?.message || err?.msg || JSON.stringify(err));
-      Alert.alert('登录失败', msg);
+      const msg = err?.message || err?.msg || JSON.stringify(err);
+      if (Platform.OS === 'web') { window.alert('登录错误：' + msg); } else { Alert.alert('登录失败', msg); }
     } finally { setLoading(false); }
   };
 
@@ -58,8 +58,8 @@ export default function LoginScreen({ navigation }) {
       Alert.alert('注册成功', '请登录');
       setMode('login');
     } catch (err) {
-      const msg = typeof err === 'string' ? err : (err?.message || err?.msg || JSON.stringify(err));
-      Alert.alert('注册失败', msg);
+      const msg = err?.message || err?.msg || JSON.stringify(err);
+      if (Platform.OS === 'web') { window.alert('注册错误：' + msg); } else { Alert.alert('注册失败', msg); }
     } finally { setLoading(false); }
   };
 
