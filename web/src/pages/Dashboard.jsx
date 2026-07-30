@@ -8,7 +8,7 @@ import {
   ShoppingCartOutlined, DollarOutlined,
   ClockCircleOutlined, CheckCircleOutlined,
 } from '@ant-design/icons';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
+import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts';
 import { orderAPI } from '../api';
 import { ORDER_STATUS } from '../config';
 import dayjs from 'dayjs';
@@ -109,6 +109,58 @@ export default function Dashboard() {
             </Card>
           </Col>
         ))}
+      </Row>
+
+      {/* 营收趋势 + 热销商品 */}
+      <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+        <Col xs={24} lg={14}>
+          <Card title={<span>📈 近7天营收趋势</span>} style={{ borderRadius: 12, border: 'none', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+            <ResponsiveContainer width="100%" height={260}>
+              <LineChart data={(() => {
+                const days = [];
+                for (let i = 6; i >= 0; i--) {
+                  const d = dayjs().subtract(i, 'day');
+                  const dayOrders = orders.filter(o => dayjs(o.createdAt).isSame(d, 'day') && o.status !== 'cancelled');
+                  days.push({ day: d.format('MM/DD'), revenue: dayOrders.reduce((s, o) => s + parseFloat(o.total_price), 0), orders: dayOrders.length });
+                }
+                return days;
+              })()}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis dataKey="day" fontSize={12} />
+                <YAxis yAxisId="left" fontSize={12} />
+                <YAxis yAxisId="right" orientation="right" fontSize={12} />
+                <Tooltip />
+                <Legend />
+                <Line yAxisId="left" type="monotone" dataKey="revenue" name="营收(¥)" stroke="#ff6b35" strokeWidth={2} dot={{ r: 4 }} />
+                <Line yAxisId="right" type="monotone" dataKey="orders" name="订单数" stroke="#1890ff" strokeWidth={2} dot={{ r: 4 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </Card>
+        </Col>
+        <Col xs={24} lg={10}>
+          <Card title={<span>🔥 热销商品 TOP5</span>} style={{ borderRadius: 12, border: 'none', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+            {(() => {
+              const productSales = {};
+              orders.forEach(o => o.items?.forEach(i => {
+                const name = i.product?.name || '未知';
+                productSales[name] = (productSales[name] || 0) + i.quantity;
+              }));
+              const top5 = Object.entries(productSales).sort((a, b) => b[1] - a[1]).slice(0, 5);
+              if (top5.length === 0) return <div style={{ textAlign: 'center', color: '#999', padding: 40 }}>暂无数据</div>;
+              return (
+                <ResponsiveContainer width="100%" height={260}>
+                  <BarChart data={top5.map(([name, qty]) => ({ name, qty }))} layout="vertical">
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                    <XAxis type="number" fontSize={12} />
+                    <YAxis type="category" dataKey="name" width={80} fontSize={12} />
+                    <Tooltip />
+                    <Bar dataKey="qty" name="销量" fill="#ff6b35" radius={[0, 6, 6, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              );
+            })()}
+          </Card>
+        </Col>
       </Row>
 
       {/* 最近订单 */}
