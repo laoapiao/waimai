@@ -2,7 +2,7 @@
  * 店铺设置 — Logo 上传 + 店铺名称
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, Typography, Input, Button, Upload, message, Space, Divider } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 
@@ -11,7 +11,7 @@ const { Title } = Typography;
 export default function Settings() {
   const [shopName, setShopName] = useState('阿飘菜市');
   const [logo, setLogo] = useState(null);
-  const [logoFile, setLogoFile] = useState(null);
+  const [fileList, setFileList] = useState([]);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => { loadSettings(); }, []);
@@ -22,8 +22,20 @@ export default function Settings() {
       if (res.code === 200) {
         setShopName(res.data.shopName || '阿飘菜市');
         setLogo(res.data.logo);
+        if (res.data.logo) {
+          setFileList([{ uid: '-1', name: 'logo.png', status: 'done', url: res.data.logo }]);
+        }
       }
     } catch (e) { /* ignore */ }
+  };
+
+  const handleUpload = async (file) => {
+    setFileList([file]);
+    // 预览
+    const reader = new FileReader();
+    reader.onload = (e) => setLogo(e.target.result);
+    reader.readAsDataURL(file);
+    return false; // 阻止自动上传
   };
 
   const handleSave = async () => {
@@ -31,8 +43,8 @@ export default function Settings() {
     try {
       const fd = new FormData();
       fd.append('shopName', shopName);
-      if (logoFile?.originFileObj) {
-        fd.append('logo', logoFile.originFileObj);
+      if (fileList.length > 0 && fileList[0].originFileObj) {
+        fd.append('logo', fileList[0].originFileObj);
       }
       const res = await fetch('/api/settings', {
         method: 'PUT',
@@ -42,7 +54,7 @@ export default function Settings() {
       if (res.code === 200) {
         message.success('保存成功！刷新页面即可看到新 Logo');
         setLogo(res.data.logo);
-        setLogoFile(null);
+        setFileList([]);
       } else {
         message.error(res.message);
       }
@@ -59,7 +71,6 @@ export default function Settings() {
 
       <Card style={{ borderRadius: 12, border: 'none', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', maxWidth: 600 }}>
         <Space direction="vertical" size={24} style={{ width: '100%' }}>
-          {/* 店铺名称 */}
           <div>
             <div style={{ marginBottom: 8, fontWeight: 600 }}>店铺名称</div>
             <Input value={shopName} onChange={e => setShopName(e.target.value)}
@@ -68,20 +79,15 @@ export default function Settings() {
 
           <Divider />
 
-          {/* Logo 上传 */}
           <div>
             <div style={{ marginBottom: 8, fontWeight: 600 }}>店铺 Logo</div>
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: 20 }}>
-              {/* 预览 */}
               <div style={{
                 width: 80, height: 80, borderRadius: 18,
-                background: logo ? '#fff' : '#f5f5f5',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: '#f5f5f5', display: 'flex', alignItems: 'center', justifyContent: 'center',
                 border: '1px dashed #ddd', overflow: 'hidden',
               }}>
-                {logoFile?.thumbUrl || logo ? (
-                  <img src={logoFile?.thumbUrl || logo} alt="logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                ) : logo ? (
+                {logo ? (
                   <img src={logo} alt="logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 ) : (
                   <span style={{ fontSize: 36, color: '#ccc' }}>🛵</span>
@@ -90,19 +96,17 @@ export default function Settings() {
 
               <div>
                 <Upload
-                  listType="picture-card" maxCount={1}
-                  fileList={logoFile ? [logoFile] : []}
-                  beforeUpload={file => {
-                    setLogoFile({ uid: '-1', name: file.name, originFileObj: file, thumbUrl: URL.createObjectURL(file) });
-                    return false;
-                  }}
-                  onRemove={() => setLogoFile(null)}
+                  listType="picture-card"
+                  maxCount={1}
+                  fileList={fileList}
+                  beforeUpload={handleUpload}
+                  onRemove={() => { setFileList([]); setLogo(null); }}
                 >
-                  {!logoFile && <div><UploadOutlined /><div style={{ marginTop: 8 }}>选择图片</div></div>}
+                  {fileList.length === 0 && (
+                    <div><UploadOutlined /><div style={{ marginTop: 8 }}>选择图片</div></div>
+                  )}
                 </Upload>
-                <div style={{ color: '#999', fontSize: 12 }}>
-                  推荐正方形图片，如 200×200 PNG
-                </div>
+                <div style={{ color: '#999', fontSize: 12 }}>推荐正方形图片，如 200×200 PNG</div>
               </div>
             </div>
           </div>
