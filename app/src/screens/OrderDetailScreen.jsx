@@ -70,6 +70,33 @@ export default function OrderDetailScreen({ route }) {
         <Text style={styles.orderNo}>订单号：{order.order_no}</Text>
       </View>
 
+      {/* 顾客位置地图 */}
+      {order.lat && order.lng ? (
+        <View style={styles.mapSection}>
+          <Text style={styles.sectionTitle}>🗺️ 顾客位置</Text>
+          <View style={styles.mapContainer}>
+            {Platform.OS === 'web' ? (
+              <iframe
+                src={`https://www.openstreetmap.org/export/embed.html?bbox=${order.lng - 0.005},${order.lat - 0.005},${order.lng + 0.005},${order.lat + 0.005}&layer=mapnik&marker=${order.lat},${order.lng}`}
+                style={{ width: '100%', height: 250, border: 'none', borderRadius: 12 }}
+                title="顾客位置"
+              />
+            ) : (
+              <View style={{ height: 250, backgroundColor: '#f0f0f0', borderRadius: 12, justifyContent: 'center', alignItems: 'center' }}>
+                <Text style={{ fontSize: 40 }}>📍</Text>
+                <Text style={{ fontSize: 14, color: '#666', marginTop: 8 }}>
+                  纬度: {parseFloat(order.lat).toFixed(6)}{'\n'}
+                  经度: {parseFloat(order.lng).toFixed(6)}
+                </Text>
+              </View>
+            )}
+          </View>
+          <TouchableOpacity style={styles.openMapBtn} onPress={handleNavigate}>
+            <Text style={styles.openMapBtnText}>🧭 打开导航</Text>
+          </TouchableOpacity>
+        </View>
+      ) : null}
+
       {/* 收货信息 */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>📋 收货信息</Text>
@@ -155,4 +182,9 @@ const styles = StyleSheet.create({
   },
   navBtnText: { fontSize: 18, fontWeight: '700', color: '#52c41a' },
   navBtnSub: { fontSize: 13, color: '#999', marginTop: 6, textAlign: 'center' },
+  // 地图
+  mapSection: { backgroundColor: '#fff', margin: 16, marginTop: 0, marginBottom: 16, padding: 16, borderRadius: 12 },
+  mapContainer: { borderRadius: 12, overflow: 'hidden', marginTop: 10, marginBottom: 10 },
+  openMapBtn: { backgroundColor: '#52c41a', padding: 14, borderRadius: 10, alignItems: 'center', marginTop: 8 },
+  openMapBtnText: { color: '#fff', fontSize: 16, fontWeight: '700' },
 });
