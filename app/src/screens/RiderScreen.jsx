@@ -4,7 +4,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
-  View, Text, FlatList, TouchableOpacity, Switch,
+  View, Text, TextInput, FlatList, TouchableOpacity, Switch,
   StyleSheet, Alert, RefreshControl, Vibration, Platform,
 } from 'react-native';
 import Slider from '@react-native-community/slider';
@@ -345,10 +345,37 @@ export default function RiderScreen({ navigation }) {
 }
 
 // ====== 我的面板 ======
+function PaymentField({ label, value, field, onChange }) {
+  return (
+    <View style={{ marginBottom: 10 }}>
+      <Text style={{ fontSize: 13, color: '#666', marginBottom: 4 }}>{label}</Text>
+      <TextInput style={{ height: 40, borderWidth: 1, borderColor: '#e0e0e0', borderRadius: 10, paddingHorizontal: 12, fontSize: 14, backgroundColor: '#fafafa' }}
+        value={value} onChangeText={v => onChange(field, v)} placeholder="未绑定" />
+    </View>
+  );
+}
+
 function MinePanel({ user, refreshUser, onBack }) {
   const deposit = parseFloat(user.deposit) || 0;
   const maxOrders = user.max_orders || 1;
   const [sliderVal, setSliderVal] = useState(maxOrders);
+  const [paymentInfo, setPaymentInfo] = useState(() => {
+    try { return JSON.parse(user.payment_account) || {}; } catch(e) { return {}; }
+  });
+
+  const updatePayment = (field, value) => setPaymentInfo(prev => ({ ...prev, [field]: value }));
+
+  const handleSavePayment = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      const res = await fetch('http://8.134.213.206/api/auth/me', {
+        method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+        body: JSON.stringify({ payment_account: JSON.stringify(paymentInfo) }),
+      }).then(r => r.json());
+      if (res.code === 200) { Alert.alert('保存成功', '收款账户已更新'); refreshUser(); }
+      else { Alert.alert('错误', res.message); }
+    } catch (e) { Alert.alert('错误', '网络错误'); }
+  };
 
   const handleDeposit = async () => {
     try {
@@ -435,6 +462,17 @@ function MinePanel({ user, refreshUser, onBack }) {
         <Text style={{ textAlign: 'center', fontSize: 13, color: '#999', marginTop: 4 }}>
           {deposit >= 200 ? '1 ~ 20 单 ｜ 已缴保证金 ✅' : '🔒 缴纳后解锁 1~20 单'}
         </Text>
+      </View>
+
+      {/* 收款账户 */}
+      <View style={ms.section}>
+        <Text style={ms.sectionTitle}>💳 收款账户</Text>
+        <PaymentField label="🏦 银行卡号" value={paymentInfo.bank} field="bank" onChange={updatePayment} />
+        <PaymentField label="💚 微信账号" value={paymentInfo.wechat} field="wechat" onChange={updatePayment} />
+        <PaymentField label="💙 支付宝账号" value={paymentInfo.alipay} field="alipay" onChange={updatePayment} />
+        <TouchableOpacity style={[ms.btn, { backgroundColor: '#ff6b35', marginTop: 12, alignSelf: 'center' }]} onPress={handleSavePayment}>
+          <Text style={{ color: '#fff', fontWeight: '600' }}>保存收款账户</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );

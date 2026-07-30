@@ -50,7 +50,7 @@ function toSafeUser(user) {
 }
 
 // ========== 隐藏密码的更新——只允许更新非敏感字段 ==========
-const ALLOWED_UPDATES = ['nickname', 'avatar', 'is_online', 'max_orders'];
+const ALLOWED_UPDATES = ['nickname', 'avatar', 'is_online', 'max_orders', 'payment_account'];
 
 // ========== POST /api/auth/register — 注册 ==========
 router.post('/register', [

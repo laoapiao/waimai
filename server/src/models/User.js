@@ -71,6 +71,11 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: 1,
       comment: '最大同时接单数',
     },
+    payment_account: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      comment: '收款账户JSON（银行卡/微信/支付宝）',
+    },
   }, {
     tableName: 'users',
     timestamps: true,       // 自动记录 createdAt 和 updatedAt
