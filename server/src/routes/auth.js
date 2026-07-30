@@ -283,18 +283,20 @@ router.get('/rider/stats', requireAuth, async (req, res, next) => {
   }
 });
 
-// ========== 验证码（开发模式：固定 888888） ==========
-const smsCodes = new Map(); // 内存存储验证码
+// ========== 短信验证码 ==========
+const { sendCode: sendSMS } = require('../utils/sms');
+const smsCodes = new Map();
 
 router.post('/send-code', async (req, res) => {
   const { phone } = req.body;
   if (!phone) return res.status(400).json({ code: 400, message: '请输入手机号' });
-  const code = process.env.NODE_ENV === 'production'
-    ? String(Math.floor(100000 + Math.random() * 900000))
-    : '888888';
-  smsCodes.set(phone, { code, time: Date.now() });
-  console.log(`验证码 [${phone}]: ${code}`);
-  res.json({ code: 200, message: '验证码已发送' });
+  try {
+    const code = await sendSMS(phone);
+    smsCodes.set(phone, { code, time: Date.now() });
+    res.json({ code: 200, message: '验证码已发送' });
+  } catch (err) {
+    res.status(500).json({ code: 500, message: err.message || '发送失败' });
+  }
 });
 
 router.post('/verify-code', async (req, res) => {
@@ -305,7 +307,6 @@ router.post('/verify-code', async (req, res) => {
   if (Date.now() - record.time > 5 * 60 * 1000) return res.status(400).json({ code: 400, message: '验证码已过期' });
   smsCodes.delete(phone);
 
-  // 验证码登录：查找或创建骑手用户
   let user = await User.findOne({ where: { phone } });
   if (!user) {
     user = await User.create({ phone, role: 'rider', nickname: '骑手' + phone.slice(-4) });

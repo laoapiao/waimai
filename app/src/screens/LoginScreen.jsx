@@ -40,7 +40,8 @@ export default function LoginScreen({ navigation }) {
         : await authAPI.login(phone, password);
       await doLogin(result);
     } catch (err) {
-      Alert.alert('登录失败', err.message || '请重试');
+      const msg = typeof err === 'string' ? err : (err?.message || err?.msg || JSON.stringify(err));
+      Alert.alert('登录失败', msg);
     } finally { setLoading(false); }
   };
 
@@ -57,7 +58,8 @@ export default function LoginScreen({ navigation }) {
       Alert.alert('注册成功', '请登录');
       setMode('login');
     } catch (err) {
-      Alert.alert('注册失败', err.message || '请重试');
+      const msg = typeof err === 'string' ? err : (err?.message || err?.msg || JSON.stringify(err));
+      Alert.alert('注册失败', msg);
     } finally { setLoading(false); }
   };
 

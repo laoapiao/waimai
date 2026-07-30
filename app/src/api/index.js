@@ -30,7 +30,10 @@ async function request(url, options = {}) {
   if (result.code === 200) {
     return result;
   } else {
-    throw result;
+    const err = new Error(result.message || '请求失败');
+    err.code = result.code;
+    err.data = result;
+    throw err;
   }
 }
 
