@@ -60,6 +60,13 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: 5.00,
       comment: '配送费（骑手收入）',
     },
+    store_address: {
+      type: DataTypes.STRING(500),
+      allowNull: true,
+      comment: '取餐地址（商户位置）',
+    },
+    store_lat: { type: DataTypes.DECIMAL(10, 7), allowNull: true },
+    store_lng: { type: DataTypes.DECIMAL(10, 7), allowNull: true },
     // 以下外键通过关联自动创建：
     // customer_id:  下单顾客ID
     // rider_id:     接单骑手ID

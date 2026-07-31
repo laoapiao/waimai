@@ -67,7 +67,18 @@ router.post('/', [
       });
     }
 
-    // 2. 用数据库事务创建订单（防止孤儿订单）
+    // 2. 读取商户位置
+    let storeAddr = '', storeLat = null, storeLng = null;
+    try {
+      const fs = require('fs'), path = require('path');
+      const settingsPath = path.join(__dirname, '../../data/settings.json');
+      if (fs.existsSync(settingsPath)) {
+        const s = JSON.parse(fs.readFileSync(settingsPath, 'utf-8'));
+        storeAddr = s.address || ''; storeLat = s.lat || null; storeLng = s.lng || null;
+      }
+    } catch(e) {}
+
+    // 3. 用数据库事务创建订单
     const order = await sequelize.transaction(async (t) => {
       const newOrder = await Order.create({
         order_no: generateOrderNo(),
@@ -78,6 +89,9 @@ router.post('/', [
         remark: remark || '',
         lat: lat || null,
         lng: lng || null,
+        store_address: storeAddr,
+        store_lat: storeLat,
+        store_lng: storeLng,
         status: 'pending',
       }, { transaction: t });
 

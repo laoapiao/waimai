@@ -12,6 +12,9 @@ export default function Settings() {
   const [shopName, setShopName] = useState('阿飘菜市');
   const [logo, setLogo] = useState(null);
   const [announcement, setAnnouncement] = useState('');
+  const [address, setAddress] = useState('');
+  const [lat, setLat] = useState('');
+  const [lng, setLng] = useState('');
   const [fileList, setFileList] = useState([]);
   const [saving, setSaving] = useState(false);
 
@@ -24,6 +27,9 @@ export default function Settings() {
         setShopName(res.data.shopName || '阿飘菜市');
         setLogo(res.data.logo);
         setAnnouncement(res.data.announcement || '');
+        setAddress(res.data.address || '');
+        setLat(res.data.lat || '');
+        setLng(res.data.lng || '');
         if (res.data.logo) {
           setFileList([{ uid: '-1', name: 'logo.png', status: 'done', url: res.data.logo }]);
         }
@@ -46,6 +52,9 @@ export default function Settings() {
       const fd = new FormData();
       fd.append('shopName', shopName);
       fd.append('announcement', announcement);
+      fd.append('address', address);
+      fd.append('lat', lat);
+      fd.append('lng', lng);
       if (fileList.length > 0 && fileList[0].originFileObj) {
         fd.append('logo', fileList[0].originFileObj);
       }
@@ -86,6 +95,24 @@ export default function Settings() {
               placeholder="输入公告内容，顾客将在小程序首页看到" rows={3} maxLength={200}
               style={{ borderRadius: 10 }} />
             <div style={{ color: '#999', fontSize: 12, marginTop: 4, textAlign: 'right' }}>{announcement.length}/200</div>
+          </div>
+
+          <Divider />
+
+          <div>
+            <div style={{ marginBottom: 8, fontWeight: 600 }}>📍 店铺地址</div>
+            <Input value={address} onChange={e => setAddress(e.target.value)}
+              placeholder="输入店铺详细地址" maxLength={100}
+              style={{ height: 44, borderRadius: 10, marginBottom: 12 }} />
+            <div style={{ display: 'flex', gap: 10 }}>
+              <Input value={lat} onChange={e => setLat(e.target.value)}
+                placeholder="纬度（如 23.123456）" style={{ height: 44, borderRadius: 10 }} />
+              <Input value={lng} onChange={e => setLng(e.target.value)}
+                placeholder="经度（如 113.123456）" style={{ height: 44, borderRadius: 10 }} />
+            </div>
+            <div style={{ color: '#999', fontSize: 12, marginTop: 4 }}>
+              可在手机地图上长按店铺位置获取经纬度
+            </div>
           </div>
 
           <Divider />
