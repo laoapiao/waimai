@@ -100,18 +100,21 @@ export default function Settings() {
           <Divider />
 
           <div>
-            <div style={{ marginBottom: 8, fontWeight: 600 }}>📍 店铺地址</div>
-            <Input value={address} onChange={e => setAddress(e.target.value)}
-              placeholder="输入店铺详细地址" maxLength={100}
-              style={{ height: 44, borderRadius: 10, marginBottom: 12 }} />
+            <div style={{ marginBottom: 8, fontWeight: 600 }}>📍 店铺地址（必填）</div>
+            <Input.TextArea value={address} onChange={e => setAddress(e.target.value)}
+              placeholder="请输入详细地址，如：广东省广州市天河区体育西路XX号XX巷XX号" rows={3} maxLength={200}
+              style={{ borderRadius: 10, marginBottom: 12 }} />
+            <div style={{ color: '#999', fontSize: 12, marginBottom: 12 }}>
+              请填写完整的省市区+街道+门牌号，骑手需要据此取餐
+            </div>
             <div style={{ display: 'flex', gap: 10 }}>
               <Input value={lat} onChange={e => setLat(e.target.value)}
-                placeholder="纬度（如 23.123456）" style={{ height: 44, borderRadius: 10 }} />
+                placeholder="纬度（选填，如 23.123）" style={{ height: 44, borderRadius: 10 }} />
               <Input value={lng} onChange={e => setLng(e.target.value)}
-                placeholder="经度（如 113.123456）" style={{ height: 44, borderRadius: 10 }} />
+                placeholder="经度（选填，如 113.123）" style={{ height: 44, borderRadius: 10 }} />
             </div>
-            <div style={{ color: '#999', fontSize: 12, marginTop: 4 }}>
-              可在手机地图上长按店铺位置获取经纬度
+            <div style={{ color: '#ccc', fontSize: 12, marginTop: 4 }}>
+              经纬度选填，填了后骑手可一键导航到店
             </div>
           </div>
 

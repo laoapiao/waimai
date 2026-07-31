@@ -70,6 +70,24 @@ export default function OrderDetailScreen({ route }) {
         <Text style={styles.orderNo}>订单号：{order.order_no}</Text>
       </View>
 
+      {/* 取餐地址 */}
+      {order.store_address ? (
+        <TouchableOpacity style={styles.storeCard} onPress={() => {
+          if (order.store_lat && order.store_lng) {
+            const url = Platform.OS === 'ios'
+              ? `maps://app?daddr=${order.store_lat},${order.store_lng}&q=${encodeURIComponent(order.store_address)}`
+              : `geo:${order.store_lat},${order.store_lng}`;
+            Linking.openURL(url).catch(() => {});
+          }
+        }}>
+          <Text style={{ fontSize: 16, fontWeight: '700' }}>🏪 取餐地址</Text>
+          <Text style={{ fontSize: 14, color: '#666', marginTop: 4 }}>{order.store_address}</Text>
+          {order.store_lat && order.store_lng ? (
+            <Text style={{ fontSize: 13, color: '#52c41a', marginTop: 4 }}>🧭 点击导航到店铺</Text>
+          ) : null}
+        </TouchableOpacity>
+      ) : null}
+
       {/* 顾客位置地图 */}
       {order.lat && order.lng ? (
         <View style={styles.mapSection}>
@@ -174,6 +192,8 @@ const styles = StyleSheet.create({
   },
   totalLabel: { fontSize: 16, color: '#333' },
   totalPrice: { fontSize: 24, fontWeight: 'bold', color: '#ff6b35' },
+  // 取餐地址
+  storeCard: { backgroundColor: '#fff', margin: 16, marginBottom: 0, padding: 16, borderRadius: 12, borderLeftWidth: 4, borderLeftColor: '#1890ff' },
   // 导航按钮
   navBtn: {
     backgroundColor: '#fff', margin: 16, marginTop: 0, padding: 20,
