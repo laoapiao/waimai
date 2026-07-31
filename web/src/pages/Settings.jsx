@@ -20,8 +20,11 @@ export default function Settings() {
   const [balance, setBalance] = useState('0.00');
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [withdrawing, setWithdrawing] = useState(false);
+  const [payBank, setPayBank] = useState('');
+  const [payWechat, setPayWechat] = useState('');
+  const [payAlipay, setPayAlipay] = useState('');
 
-  useEffect(() => { loadSettings(); loadBalance(); }, []);
+  useEffect(() => { loadSettings(); loadBalance(); loadPayAccount(); }, []);
 
   const loadSettings = async () => {
     try {
@@ -66,12 +69,40 @@ export default function Settings() {
       const res = await fetch('/api/withdraw', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + localStorage.getItem('token') },
-        body: JSON.stringify({ amount, account: '商户提现' }),
+        body: JSON.stringify({ amount, account: JSON.stringify({ bank: payBank, wechat: payWechat, alipay: payAlipay }) }),
       }).then(r => r.json());
       if (res.code === 200) { message.success('提现申请已提交'); setWithdrawAmount(''); loadBalance(); }
       else message.error(res.message);
     } catch (e) { message.error('网络错误'); }
     setWithdrawing(false);
+  };
+
+  const loadPayAccount = async () => {
+    try {
+      const res = await fetch('/api/auth/me', {
+        headers: { Authorization: 'Bearer ' + localStorage.getItem('token') },
+      }).then(r => r.json());
+      if (res.code === 200 && res.data.payment_account) {
+        try {
+          const p = JSON.parse(res.data.payment_account);
+          setPayBank(p.bank || '');
+          setPayWechat(p.wechat || '');
+          setPayAlipay(p.alipay || '');
+        } catch(e) {}
+      }
+    } catch (e) {}
+  };
+
+  const handleSavePayAccount = async () => {
+    try {
+      const res = await fetch('/api/auth/me', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + localStorage.getItem('token') },
+        body: JSON.stringify({ payment_account: JSON.stringify({ bank: payBank, wechat: payWechat, alipay: payAlipay }) }),
+      }).then(r => r.json());
+      if (res.code === 200) message.success('收款账户已保存');
+      else message.error(res.message);
+    } catch (e) { message.error('保存失败'); }
   };
 
   const handleSave = async () => {
@@ -144,6 +175,21 @@ export default function Settings() {
             <div style={{ color: '#ccc', fontSize: 12, marginTop: 4 }}>
               经纬度选填，填了后骑手可一键导航到店
             </div>
+          </div>
+
+          <Divider />
+
+          <div>
+            <div style={{ marginBottom: 8, fontWeight: 600 }}>💳 收款账户（提现到账用）</div>
+            <Input value={payBank} onChange={e => setPayBank(e.target.value)}
+              placeholder="🏦 银行卡号" style={{ height: 44, borderRadius: 10, marginBottom: 8 }} />
+            <Input value={payWechat} onChange={e => setPayWechat(e.target.value)}
+              placeholder="💚 微信账号" style={{ height: 44, borderRadius: 10, marginBottom: 8 }} />
+            <Input value={payAlipay} onChange={e => setPayAlipay(e.target.value)}
+              placeholder="💙 支付宝账号" style={{ height: 44, borderRadius: 10, marginBottom: 8 }} />
+            <Button onClick={handleSavePayAccount} style={{ height: 38, borderRadius: 8 }}>
+              保存收款账户
+            </Button>
           </div>
 
           <Divider />
