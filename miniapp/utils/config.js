@@ -5,8 +5,8 @@
 // 服务器地址（上线时改成正式域名）
 const CONFIG = {
   // 生产服务器地址
-  baseURL: 'http://8.134.213.206:3000/api',
-  wsURL: 'http://8.134.213.206:3000',
+  baseURL: 'http://8.134.213.206/api',
+  wsURL: 'http://8.134.213.206',
   // ⚠️ 上线前改为 false
   DEV_MODE: false,
 };
