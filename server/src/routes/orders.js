@@ -277,12 +277,17 @@ router.put('/:id/status', [
       }
       // 骑手收益入账
       if (order.rider_id) {
-        const { User } = require('../models');
         await User.increment('balance', {
           by: parseFloat(order.delivery_fee || 5),
           where: { id: order.rider_id },
         });
       }
+      // 商家收入入账（订单总金额 - 配送费）
+      const merchantRevenue = parseFloat(order.total_price) - parseFloat(order.delivery_fee || 5);
+      await User.increment('balance', {
+        by: Math.max(merchantRevenue, 0),
+        where: { role: 'merchant', status: 'active' },
+      });
     }
 
     // WebSocket 通知：状态变更推送给顾客

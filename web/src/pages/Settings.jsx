@@ -17,8 +17,11 @@ export default function Settings() {
   const [lng, setLng] = useState('');
   const [fileList, setFileList] = useState([]);
   const [saving, setSaving] = useState(false);
+  const [balance, setBalance] = useState('0.00');
+  const [withdrawAmount, setWithdrawAmount] = useState('');
+  const [withdrawing, setWithdrawing] = useState(false);
 
-  useEffect(() => { loadSettings(); }, []);
+  useEffect(() => { loadSettings(); loadBalance(); }, []);
 
   const loadSettings = async () => {
     try {
@@ -44,6 +47,31 @@ export default function Settings() {
     reader.onload = (e) => setLogo(e.target.result);
     reader.readAsDataURL(file);
     return false; // 阻止自动上传
+  };
+
+  const loadBalance = async () => {
+    try {
+      const res = await fetch('/api/auth/me', {
+        headers: { Authorization: 'Bearer ' + localStorage.getItem('token') },
+      }).then(r => r.json());
+      if (res.code === 200) setBalance(Number(res.data.balance || 0).toFixed(2));
+    } catch (e) {}
+  };
+
+  const handleWithdraw = async () => {
+    const amount = parseFloat(withdrawAmount);
+    if (!amount || amount < 10) return message.error('提现金额至少 ¥10');
+    setWithdrawing(true);
+    try {
+      const res = await fetch('/api/withdraw', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + localStorage.getItem('token') },
+        body: JSON.stringify({ amount, account: '商户提现' }),
+      }).then(r => r.json());
+      if (res.code === 200) { message.success('提现申请已提交'); setWithdrawAmount(''); loadBalance(); }
+      else message.error(res.message);
+    } catch (e) { message.error('网络错误'); }
+    setWithdrawing(false);
   };
 
   const handleSave = async () => {
@@ -151,6 +179,23 @@ export default function Settings() {
               </div>
             </div>
           </div>
+
+          <Divider />
+          <div>
+            <div style={{ marginBottom: 8, fontWeight: 600 }}>💵 可提现余额</div>
+            <div style={{ fontSize: 32, fontWeight: 800, color: '#52c41a', marginBottom: 12 }}>¥{balance}</div>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <Input placeholder="提现金额" style={{ flex: 1, height: 44, borderRadius: 10 }}
+                value={withdrawAmount} onChange={e => setWithdrawAmount(e.target.value)} />
+              <Button type="primary" onClick={handleWithdraw} loading={withdrawing}
+                style={{ height: 44, borderRadius: 10, fontWeight: 600, background: '#52c41a' }}>
+                申请提现
+              </Button>
+            </div>
+            <div style={{ color: '#999', fontSize: 12, marginTop: 4 }}>满 ¥10 可提，收益自动入账</div>
+          </div>
+
+          <Divider />
 
           <Button type="primary" onClick={handleSave} loading={saving}
             style={{ height: 44, borderRadius: 10, fontWeight: 600, padding: '0 40px' }}>

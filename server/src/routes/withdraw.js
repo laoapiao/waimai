@@ -25,7 +25,7 @@ const Withdrawal = sequelize.define('Withdrawal', {
 }, { tableName: 'withdrawals', timestamps: true, underscored: true });
 
 // ====== POST /api/withdraw ======
-router.post('/', requireAuth, requireRole('rider'), [
+router.post('/', requireAuth, requireRole('rider', 'merchant'), [
   body('amount').isFloat({ min: 10 }).withMessage('提现金额至少 ¥10'),
   handleValidation,
 ], async (req, res, next) => {
@@ -51,7 +51,7 @@ router.post('/', requireAuth, requireRole('rider'), [
 });
 
 // ====== GET /api/withdraw ======
-router.get('/', requireAuth, requireRole('rider'), async (req, res, next) => {
+router.get('/', requireAuth, requireRole('rider', 'merchant'), async (req, res, next) => {
   try {
     const list = await Withdrawal.findAll({
       where: { user_id: req.user.id },
