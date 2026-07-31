@@ -4,7 +4,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
-  View, Text, TextInput, FlatList, TouchableOpacity, Switch,
+  View, Text, TextInput, FlatList, TouchableOpacity, Switch, ScrollView,
   StyleSheet, Alert, RefreshControl, Vibration, Platform,
 } from 'react-native';
 import Slider from '@react-native-community/slider';
@@ -413,7 +413,7 @@ function MinePanel({ user, refreshUser, onBack }) {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
+    <ScrollView style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
       {/* 返回 */}
       <TouchableOpacity onPress={onBack} style={{ padding: 16 }}>
         <Text style={{ color: '#ff6b35', fontSize: 16 }}>← 返回</Text>
@@ -502,7 +502,7 @@ function MinePanel({ user, refreshUser, onBack }) {
           <Text style={{ color: '#fff', fontWeight: '600' }}>保存收款账户</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
