@@ -152,7 +152,7 @@ export default function AppLayout() {
           </Dropdown>
         </Header>
 
-        <Content style={{ margin: isMobile ? 10 : 20, minHeight: 280 }}>
+        <Content style={{ padding: isMobile ? 10 : 20, minHeight: 280, background: '#f0f2f5' }}>
           <Outlet />
         </Content>
       </Layout>
