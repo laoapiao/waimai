@@ -15,6 +15,12 @@
   </view>
 </view>
 
+<!-- 公告横幅 -->
+<view class="announce-bar" wx:if="{{announcement}}">
+  <text class="announce-icon">📢</text>
+  <text class="announce-text">{{announcement}}</text>
+</view>
+
 <!-- 搜索 -->
 <view class="search-wrap">
   <view class="search-box">

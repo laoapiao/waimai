@@ -12,11 +12,13 @@ Page({
     activeCategory: 0,
     keyword: '',
     loading: true,
+    announcement: '',
   },
 
   onLoad() {
     this.loadCategories();
     this.loadProducts();
+    this.loadAnnouncement();
   },
 
   onShow() {
@@ -25,6 +27,17 @@ Page({
     // 加载用户信息显示头像
     const userInfo = wx.getStorageSync('userInfo') || {};
     this.setData({ userInfo });
+  },
+
+  loadAnnouncement() {
+    wx.request({
+      url: getApp().globalData.baseURL + '/settings',
+      success: (res) => {
+        if (res.data.code === 200 && res.data.data.announcement) {
+          this.setData({ announcement: res.data.data.announcement });
+        }
+      },
+    });
   },
 
   goMine() {
