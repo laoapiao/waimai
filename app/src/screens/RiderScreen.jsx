@@ -432,7 +432,7 @@ function MinePanel({ user, refreshUser, onBack }) {
             </Text>
           </View>
           <TouchableOpacity style={[ms.btn, { backgroundColor: deposit >= 200 ? '#f5f5f5' : '#ff6b35' }]}
-            onPress={handleDeposit}>
+            onPress={deposit >= 200 ? null : handleDeposit} disabled={deposit >= 200}>
             <Text style={{ color: deposit >= 200 ? '#999' : '#fff', fontWeight: '600' }}>
               {deposit >= 200 ? '已缴纳' : '缴纳 ¥200'}
             </Text>
