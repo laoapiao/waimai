@@ -11,6 +11,7 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
+const compression = require('compression');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
 require('dotenv').config();
@@ -45,6 +46,9 @@ app.use(helmet({
     },
   } : false,
 }));
+
+// Gzip压缩
+app.use(compression());
 
 // CORS：允许前端跨域访问（开发阶段用 *，生产要限制具体域名）
 app.use(cors({
