@@ -5,7 +5,7 @@
 // 开发：局域网IP，生产：api.你的域名.com
 // 开发环境 = 本地IP，生产环境 = 服务器IP
 export const API_BASE = 'http://8.134.213.206/api';
-export const WS_URL = 'http://8.134.213.206:3000';
+export const WS_URL = 'http://8.134.213.206';
 
 // 订单状态
 export const ORDER_STATUS = {

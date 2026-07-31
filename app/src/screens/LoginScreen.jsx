@@ -3,7 +3,7 @@
  * 支持：密码登录 | 验证码登录 | 新用户注册
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity,
   StyleSheet, KeyboardAvoidingView, Platform, Alert, ScrollView,
@@ -12,10 +12,15 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { authAPI, connectSocket } from '../api';
 
 export default function LoginScreen({ navigation }) {
-  const [mode, setMode] = useState('login'); // 'login' | 'register'
-  const [loginType, setLoginType] = useState('password'); // 'password' | 'sms'
+  const [mode, setMode] = useState('login');
+  const [loginType, setLoginType] = useState('password');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+
+  // 读取上次登录的账号
+  useEffect(() => {
+    AsyncStorage.getItem('lastPhone').then(p => { if (p) setPhone(p); }).catch(() => {});
+  }, []);
   const [smsCode, setSmsCode] = useState('');
   const [nickname, setNickname] = useState('');
   const [loading, setLoading] = useState(false);
@@ -25,6 +30,7 @@ export default function LoginScreen({ navigation }) {
     if (user.role === 'customer') return Alert.alert('提示', '顾客请在微信小程序下单');
     await AsyncStorage.setItem('token', result.data.token);
     await AsyncStorage.setItem('user', JSON.stringify(user));
+    await AsyncStorage.setItem('lastPhone', user.phone || phone);
     connectSocket(result.data.token);
     navigation.replace(user.role === 'merchant' ? 'Merchant' : 'Rider');
   };

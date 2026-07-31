@@ -14,6 +14,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [shopLogo, setShopLogo] = useState(null);
+  const lastPhone = localStorage.getItem('lastPhone') || '';
   const navigate = useNavigate();
 
   // 加载店铺设置
@@ -46,6 +47,7 @@ export default function Login() {
       }
       localStorage.setItem('token', result.data.token);
       localStorage.setItem('user', JSON.stringify(result.data.user));
+      localStorage.setItem('lastPhone', values.phone);
       message.success('欢迎回来！');
       navigate('/dashboard', { replace: true });
     } catch (error) {
@@ -107,7 +109,7 @@ export default function Login() {
           <Form
             onFinish={handleLogin}
             size="large"
-            initialValues={{}}
+            initialValues={{ phone: lastPhone }}
           >
             <Form.Item
               name="phone"
