@@ -76,6 +76,11 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true,
       comment: '收款账户JSON（银行卡/微信/支付宝）',
     },
+    balance: {
+      type: DataTypes.DECIMAL(10, 2),
+      defaultValue: 0,
+      comment: '可提现余额',
+    },
   }, {
     tableName: 'users',
     timestamps: true,       // 自动记录 createdAt 和 updatedAt

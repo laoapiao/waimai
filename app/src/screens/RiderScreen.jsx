@@ -419,6 +419,34 @@ function MinePanel({ user, refreshUser, onBack }) {
         <Text style={{ color: '#ff6b35', fontSize: 16 }}>← 返回</Text>
       </TouchableOpacity>
 
+      {/* 余额 + 提现 */}
+      <View style={ms.section}>
+        <Text style={ms.sectionTitle}>💵 可提现余额</Text>
+        <Text style={{ fontSize: 40, fontWeight: '800', color: '#52c41a', textAlign: 'center', marginVertical: 12 }}>
+          ¥{(parseFloat(user.balance) || 0).toFixed(2)}
+        </Text>
+        <TouchableOpacity style={{ backgroundColor: '#52c41a', padding: 14, borderRadius: 10, alignItems: 'center' }}
+          onPress={() => {
+            Alert.prompt ? Alert.prompt('提现金额', '输入提现金额（至少¥10）', [
+              { text: '取消', style: 'cancel' },
+              { text: '提现', onPress: async (amount) => {
+                try {
+                  const token = await AsyncStorage.getItem('token');
+                  const res = await fetch('http://8.134.213.206/api/withdraw', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+                    body: JSON.stringify({ amount: parseFloat(amount), account: JSON.stringify(paymentInfo) }),
+                  }).then(r => r.json());
+                  if (res.code === 200) { Alert.alert('提现申请已提交', '等待商户审核'); refreshUser(); }
+                  else { Alert.alert('提现失败', res.message); }
+                } catch (e) { Alert.alert('错误', '网络错误'); }
+              }},
+            ]) : Alert.alert('提现', '请前往APP操作提现');
+          }}>
+          <Text style={{ color: '#fff', fontSize: 16, fontWeight: '700' }}>申请提现</Text>
+        </TouchableOpacity>
+        <Text style={{ textAlign: 'center', fontSize: 12, color: '#999', marginTop: 6 }}>订单完成自动入账·满¥10可提</Text>
+      </View>
+
       {/* 保证金 */}
       <View style={ms.section}>
         <Text style={ms.sectionTitle}>💰 保证金</Text>

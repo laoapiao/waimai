@@ -266,13 +266,21 @@ router.put('/:id/status', [
 
     await order.update({ status });
 
-    // 订单完成时增加商品销量（取消时不加）
+    // 订单完成时增加商品销量 + 骑手余额
     if (status === 'completed') {
       const items = await OrderItem.findAll({ where: { order_id: order.id } });
       for (const item of items) {
         await Product.increment('sales_count', {
           by: item.quantity,
           where: { id: item.product_id },
+        });
+      }
+      // 骑手收益入账
+      if (order.rider_id) {
+        const { User } = require('../models');
+        await User.increment('balance', {
+          by: parseFloat(order.delivery_fee || 5),
+          where: { id: order.rider_id },
         });
       }
     }
