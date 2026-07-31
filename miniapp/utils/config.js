@@ -15,6 +15,7 @@ const CONFIG = {
 const ORDER_STATUS = {
   pending:    { color: '#faad14', label: '待接单' },
   accepted:   { color: '#1890ff', label: '已接单' },
+  arrived:    { color: '#13c2c2', label: '已到店' },
   delivering: { color: '#722ed1', label: '配送中' },
   completed:  { color: '#52c41a', label: '已完成' },
   cancelled:  { color: '#999',    label: '已取消' },

@@ -28,14 +28,30 @@
   </view>
 </view>
 
+<!-- 底部购物车悬浮栏 -->
+<view class="cart-float">
+  <view class="cart-float-left" bindtap="goCart">
+    <view class="cart-float-icon">
+      <text>🛒</text>
+      <view class="cart-float-badge" wx:if="{{cartCount > 0}}">{{cartCount}}</view>
+    </view>
+    <view>
+      <text class="cart-float-total" wx:if="{{cartCount > 0}}">¥{{cartTotal}}</text>
+      <text class="cart-float-empty" wx:else>购物车是空的</text>
+    </view>
+  </view>
+  <view class="cart-float-btn {{cartCount > 0 ? '' : 'cart-btn-disabled'}}" bindtap="goCart">
+    <text>{{cartCount > 0 ? '去结算' : '去选购'}}</text>
+  </view>
+</view>
+
 <!-- 主体：左侧分类 + 右侧商品 -->
-<view class="main-body">
+<view class="main-body" style="padding-bottom: 100rpx;">
   <!-- 左侧分类导航 -->
   <scroll-view class="cate-sidebar" scroll-y enhanced show-scrollbar="{{false}}">
     <view wx:for="{{categories}}" wx:key="id"
       class="cate-side-item {{activeCategory === item.id ? 'cate-side-active' : ''}}"
       bindtap="switchCategory" data-id="{{item.id}}">
-      <text class="cate-side-icon">{{item.icon || ''}}</text>
       <text class="cate-side-name">{{item.name}}</text>
       <view wx:if="{{activeCategory === item.id}}" class="cate-side-bar"></view>
     </view>

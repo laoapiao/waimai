@@ -14,6 +14,8 @@ Page({
     loading: true,
     announcement: '',
     scrollToId: '',
+    cartCount: 0,
+    cartTotal: '0.00',
   },
 
   onLoad() {
@@ -25,6 +27,7 @@ Page({
   onShow() {
     this.loadProducts();
     getApp().updateCartBadge();
+    this.refreshCart();
     const userInfo = wx.getStorageSync('userInfo') || {};
     this.setData({ userInfo });
   },
@@ -39,6 +42,15 @@ Page({
       },
     });
   },
+
+  refreshCart() {
+    const cart = wx.getStorageSync('cart') || [];
+    const count = cart.reduce((s, i) => s + i.quantity, 0);
+    const total = cart.reduce((s, i) => s + parseFloat(i.price) * i.quantity, 0).toFixed(2);
+    this.setData({ cartCount: count, cartTotal: total });
+  },
+
+  goCart() { wx.switchTab({ url: '/pages/cart/cart' }); },
 
   goMine() { wx.switchTab({ url: '/pages/mine/mine' }); },
 
@@ -99,6 +111,7 @@ Page({
     else { cart.push({ id: item.id, name: item.name, price: item.price, image: item.image, quantity: 1 }); }
     wx.setStorageSync('cart', cart);
     getApp().updateCartBadge();
+    this.refreshCart();
     wx.showToast({ title: '已加入购物车', icon: 'success' });
   },
 });

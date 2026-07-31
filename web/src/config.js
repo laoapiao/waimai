@@ -11,6 +11,7 @@ export const WS_URL = 'http://localhost:3000';
 export const ORDER_STATUS = {
   pending:    { color: 'orange',   text: '待接单' },
   accepted:   { color: 'blue',     text: '已接单' },
+  arrived:    { color: '#13c2c2',  text: '已到店' },
   delivering: { color: 'purple',   text: '配送中' },
   completed:  { color: 'green',    text: '已完成' },
   cancelled:  { color: '#999',     text: '已取消' },

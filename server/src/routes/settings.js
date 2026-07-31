@@ -37,7 +37,7 @@ function readSettings() {
       return JSON.parse(fs.readFileSync(SETTINGS_FILE, 'utf-8'));
     }
   } catch (e) { /* ignore */ }
-  return { shopName: '阿飘菜市', logo: null };
+  return { shopName: '阿飘菜市', logo: null, announcement: '' };
 }
 
 // 写入设置
@@ -57,6 +57,7 @@ router.put('/', requireAuth, requireRole('merchant'), upload.single('logo'), (re
   const settings = readSettings();
 
   if (req.body.shopName) settings.shopName = req.body.shopName;
+  if (req.body.announcement !== undefined) settings.announcement = req.body.announcement;
   if (req.file) {
     settings.logo = (process.env.FILE_BASE_URL || '') + '/uploads/' + req.file.filename;
   }

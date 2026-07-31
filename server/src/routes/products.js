@@ -188,7 +188,9 @@ router.put('/:id', [
     if (is_available !== undefined) updateData.is_available = is_available;
 
     // 如果上传了新图片，更新图片路径
-    if (req.file) {
+    if (req.body.clear_image === 'true') {
+      updateData.image = null;
+    } else if (req.file) {
       updateData.image = (process.env.FILE_BASE_URL || '') + '/uploads/' + req.file.filename;
     }
 

@@ -335,7 +335,7 @@ router.put('/:id/accept', requireAuth, requireRole('rider'), async (req, res, ne
 });
 
 // ========== GET /api/orders/:id/location — 获取骑手位置 ==========
-router.get('/:id/location', requireAuth, async (req, res) => {
+router.get('/:id/location', requireAuth, async (req, res, next) => {
   try {
     const order = await Order.findByPk(req.params.id);
     if (!order) {

@@ -37,6 +37,9 @@
 
           <!-- 数量调节 -->
           <view class="qty-stepper">
+            <view class="item-del" bindtap="removeItem" data-id="{{item.id}}">
+              <text>🗑️</text>
+            </view>
             <view class="qty-btn {{item.quantity <= 1 ? 'qty-disabled' : ''}}" bindtap="decrease" data-id="{{item.id}}">
               <text class="qty-icon">−</text>
             </view>

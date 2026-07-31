@@ -148,18 +148,18 @@ export default function RiderScreen({ navigation }) {
   // ====== 操作 ======
   const handleAccept = (order) => {
     if (activeCount >= (user.max_orders || 1)) {
-      return alert(`当前最多同时接 ${user.max_orders} 单。缴纳保证金后可提升上限。`);
+      return Alert.alert('接单上限', `当前最多同时接 ${user.max_orders} 单。缴纳保证金后可提升上限。`);
     }
     showConfirm('确认接单', `${order.order_no}\n${order.delivery_address}`, async () => {
       try { await orderAPI.accept(order.id); loadOrders(); loadStats(); }
-      catch (err) { alert('接单失败: ' + (err.message || '未知错误')); }
+      catch (err) { Alert.alert('接单失败: ' + (err.message || '未知错误')); }
     });
   };
 
   const handleArrived = (order) => {
     showConfirm('确认到店', '已到达取餐点？', async () => {
       try { await orderAPI.updateStatus(order.id, 'arrived'); loadOrders(); }
-      catch (err) { alert('错误: ' + err.message); }
+      catch (err) { Alert.alert('错误: ' + err.message); }
     });
   };
 
@@ -169,14 +169,14 @@ export default function RiderScreen({ navigation }) {
         await orderAPI.updateStatus(order.id, 'delivering');
         emitSocketEvent('rider:join_order', { orderId: order.id });
         loadOrders();
-      } catch (err) { alert('错误: ' + err.message); }
+      } catch (err) { Alert.alert('错误: ' + err.message); }
     });
   };
 
   const handleComplete = (order) => {
     showConfirm('完成配送', '确认已送达？', async () => {
       try { await orderAPI.updateStatus(order.id, 'completed'); loadOrders(); loadStats(); }
-      catch (err) { alert('错误: ' + err.message); }
+      catch (err) { Alert.alert('错误: ' + err.message); }
     });
   };
 

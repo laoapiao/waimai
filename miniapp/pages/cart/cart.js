@@ -28,15 +28,24 @@ Page({
     this.setData({ cart, totalPrice, totalCount });
   },
 
-  // 回首页
-  goShop() {
-    wx.switchTab({ url: '/pages/index/index' });
+  // 直接删除商品
+  removeItem(e) {
+    const id = e.currentTarget.dataset.id;
+    // 操作原始 storage 数据（不含subtotal），避免数据污染
+    let cart = wx.getStorageSync('cart') || [];
+    cart = cart.filter(c => c.id !== id);
+    wx.setStorageSync('cart', cart);
+    getApp().updateCartBadge();
+    this.loadCart();
   },
+
+  // 回首页
+  goShop() { wx.switchTab({ url: '/pages/index/index' }); },
 
   // 减少数量
   decrease(e) {
     const id = e.currentTarget.dataset.id;
-    let cart = this.data.cart;
+    let cart = wx.getStorageSync('cart') || [];
     const index = cart.findIndex(c => c.id === id);
     if (index > -1) {
       if (cart[index].quantity > 1) {
@@ -53,7 +62,7 @@ Page({
   // 增加数量
   increase(e) {
     const id = e.currentTarget.dataset.id;
-    let cart = this.data.cart;
+    let cart = wx.getStorageSync('cart') || [];
     const index = cart.findIndex(c => c.id === id);
     if (index > -1) {
       cart[index].quantity += 1;
