@@ -27,8 +27,8 @@ api.interceptors.response.use(
     if (error.response) {
       const { status, data } = error.response;
 
-      // 401 = token过期或没登录 → 跳转到登录页
-      if (status === 401) {
+      // 401 = token过期或没登录
+      if (status === 401 && !window.location.pathname.includes('/login')) {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         window.location.href = '/login';

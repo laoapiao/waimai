@@ -32,6 +32,14 @@ export default function AppLayout() {
     fetch('/api/settings').then(r => r.json()).then(res => {
       if (res.code === 200 && res.data.logo) setShopLogo(res.data.logo);
     }).catch(() => {});
+
+    // 验证登录状态，token 过期则跳转
+    const token = localStorage.getItem('token');
+    if (!token) { navigate('/login'); return; }
+    fetch('/api/auth/me', { headers: { Authorization: 'Bearer ' + token } })
+      .then(r => r.json())
+      .then(res => { if (res.code !== 200) { localStorage.clear(); navigate('/login'); } })
+      .catch(() => {});
   }, []);
 
   const [shopLogo, setShopLogo] = useState(null);
