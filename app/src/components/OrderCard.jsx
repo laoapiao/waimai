@@ -34,6 +34,9 @@ export default function OrderCard({ order, onPress, actions }) {
       {/* 底部信息 */}
       <View style={styles.footer}>
         <View style={styles.info}>
+          {order.store_address ? (
+            <Text style={styles.storeAddr} numberOfLines={1}>🏪 {order.store_address}</Text>
+          ) : null}
           <Text style={styles.address} numberOfLines={1}>
             📍 {order.delivery_address}
           </Text>
@@ -82,6 +85,7 @@ const styles = StyleSheet.create({
   products: { fontSize: 15, color: '#333', marginBottom: 10, lineHeight: 22 },
   footer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' },
   info: { flex: 1, marginRight: 12 },
+  storeAddr: { fontSize: 13, color: '#1890ff', marginBottom: 2 },
   address: { fontSize: 13, color: '#666', marginBottom: 4 },
   customer: { fontSize: 12, color: '#999' },
   price: { fontSize: 22, fontWeight: 'bold', color: '#ff6b35' },
