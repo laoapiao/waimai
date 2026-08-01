@@ -150,6 +150,17 @@ router.post('/', [
       data: fullOrder,
     });
   } catch (error) {
+    // 幂等键冲突 → 返回已有订单
+    if (error.name === 'SequelizeUniqueConstraintError' && idempotency_key) {
+      const existing = await Order.findOne({
+        where: { idempotency_key, customer_id: req.user.id },
+        include: [
+          { model: OrderItem, as: 'items', include: [{ model: Product, as: 'product', attributes: ['id', 'name', 'image'] }] },
+          { model: User, as: 'customer', attributes: ['id', 'nickname', 'phone'] },
+        ],
+      });
+      if (existing) return res.json({ code: 200, message: '下单成功', data: existing });
+    }
     next(error);
   }
 });
