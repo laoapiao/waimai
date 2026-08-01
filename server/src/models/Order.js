@@ -20,6 +20,12 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       comment: '订单编号（显示给用户看的）',
     },
+    idempotency_key: {
+      type: DataTypes.STRING(64),
+      unique: true,
+      allowNull: true,
+      comment: '幂等键，防重复提交',
+    },
     status: {
       type: DataTypes.ENUM('pending', 'accepted', 'arrived', 'delivering', 'completed', 'cancelled'),
       defaultValue: 'pending',

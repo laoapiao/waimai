@@ -17,6 +17,10 @@ Page({
   },
 
   async onLoad(options) {
+    // 生成幂等键：用户ID + 时间戳 + 随机数，防重复提交
+    const userInfo = wx.getStorageSync('userInfo') || {};
+    this.idempotencyKey = (userInfo.id || 'u') + '_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
+
     // 确保已登录
     const token = wx.getStorageSync('token');
     if (!token) {
@@ -81,6 +85,7 @@ Page({
         remark: this.data.remark,
         lat: this.data.lat,
         lng: this.data.lng,
+        idempotency_key: this.idempotencyKey,
       });
 
       const orderId = res.data.id;

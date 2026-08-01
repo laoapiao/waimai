@@ -39,7 +39,21 @@ router.post('/', [
   handleValidation,
 ], async (req, res, next) => {
   try {
-    const { items, delivery_address, contact_phone, remark, lat, lng } = req.body;
+    const { items, delivery_address, contact_phone, remark, lat, lng, idempotency_key } = req.body;
+
+    // 0. 幂等检查：相同 key 的请求直接返回已有订单
+    if (idempotency_key) {
+      const existing = await Order.findOne({ where: { idempotency_key, customer_id: req.user.id } });
+      if (existing) {
+        const fullOrder = await Order.findByPk(existing.id, {
+          include: [
+            { model: OrderItem, as: 'items', include: [{ model: Product, as: 'product', attributes: ['id', 'name', 'image'] }] },
+            { model: User, as: 'customer', attributes: ['id', 'nickname', 'phone'] },
+          ],
+        });
+        return res.json({ code: 200, message: '下单成功', data: fullOrder });
+      }
+    }
 
     // 1. 查询所有要购买的商品，计算总价
     let totalPrice = 0;
@@ -92,6 +106,7 @@ router.post('/', [
         store_address: storeAddr,
         store_lat: storeLat,
         store_lng: storeLng,
+        idempotency_key: idempotency_key || null,
         status: 'pending',
       }, { transaction: t });
 
